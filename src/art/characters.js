@@ -69,7 +69,7 @@ function drawHeadFront(g, o, L, back) {
     if (!back) { P(g, 16, t + 3, 1, 2, o.band); P(g, 17, t + 4, 1, 2, shade(o.band, -0.2)); }
     else { P(g, 11, t + 3, 2, 3, o.band); }
   }
-  if (o.extras?.includes('silver')) { P(g, 9, t - 1, 6, 1, '#d8dce6'); P(g, 11, t - 3, 2, 2, '#eef0f6'); P(g, 10, t - 2, 1, 1, '#b8bcc8'); P(g, 13, t - 2, 1, 1, '#b8bcc8'); }
+  if (o.extras?.includes('silver')) { P(g, 9, t - 1, 6, 1, '#c8ccd8'); P(g, 8, t - 3, 1, 3, '#d8dce6'); P(g, 15, t - 3, 1, 3, '#d8dce6'); P(g, 7, t - 4, 1, 2, '#eef0f6'); P(g, 16, t - 4, 1, 2, '#eef0f6'); P(g, 11, t - 1, 2, 1, '#e8506a'); }
   if (!back) {
     // 眼、腮红、嘴
     const ey = t + 5;
@@ -182,7 +182,7 @@ function drawSide(g, o, L, frame, pose = null) {
     if (o.hairStyle === 'bun') { P(g, X(13), ty - 2, 4, 4, o.hair); P(g, X(16), ty - 1, 2, 1, '#d8b04a'); }
     if (o.hairStyle === 'twinbun') { P(g, X(9), ty - 2, 3, 3, o.hair); P(g, X(14), ty - 1, 3, 3, o.hair); }
     if (o.band) { P(g, X(9), ty + 2, 7, 1, o.band); P(g, X(16), ty + 3, 2, 1, o.band); P(g, X(17), ty + 4, 2, 1, shade(o.band, -0.2)); }
-    if (o.extras?.includes('silver')) { P(g, X(10), ty - 1, 5, 1, '#d8dce6'); P(g, X(11), ty - 3, 2, 2, '#eef0f6'); }
+    if (o.extras?.includes('silver')) { P(g, X(10), ty - 1, 5, 1, '#c8ccd8'); P(g, X(14), ty - 4, 1, 3, '#d8dce6'); P(g, X(10), ty - 3, 1, 2, '#d8dce6'); }
   }
   if (!o.extras?.includes('mask')) {
     const closed = pose === 'hurt';

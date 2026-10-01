@@ -50,8 +50,10 @@ export class Game {
   }
 
   frame() {
-    const dt = Math.min(this.dtCap, this.clock.getDelta());
+    const raw = this.clock.getDelta();
+    const dt = Math.min(this.dtCap, raw);
     this.t += dt;
+    this.adaptQuality(raw);
     if (this.mode !== 'title' && this.mode !== 'boot') this.state.stats.playTime += dt;
     const modal = this.ui.update(this.input, dt);
     const m = this.mode;
@@ -65,6 +67,19 @@ export class Game {
     }
     if (this.world.scene || m === 'battle') this.renderer.render(this.t);
     this.input.endFrame();
+  }
+
+  // 帧率持续偏低时逐级降低渲染分辨率
+  adaptQuality(raw) {
+    if (this.debug) return;
+    this._fpsAcc = (this._fpsAcc || 0) + raw; this._fpsN = (this._fpsN || 0) + 1;
+    if (this._fpsAcc < 4) return;
+    const fps = this._fpsN / this._fpsAcc;
+    this._fpsAcc = 0; this._fpsN = 0;
+    const r = this.renderer.renderer;
+    const pr = r.getPixelRatio();
+    if (fps < 38 && pr > 0.7) { r.setPixelRatio(Math.max(0.7, pr - 0.25)); this.renderer.resize(); }
+    else if (fps < 30 && this.renderer.bloom.enabled) { this.renderer.bloom.enabled = false; }
   }
 
   // ---------- 地图 ----------
