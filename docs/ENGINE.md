@@ -26,6 +26,8 @@ x 向右（东），z 向下（南，朝向镜头），y 向上。网格 1 格 =
   env: { fog, skyTop, fogNear, fogFar, hemi: [sky, ground, intensity], sun: [color, intensity], sunDir: [x,y,z], ambient: [color, i], mountain, sunDisc, water: {deep, shallow, foam} },
   look: { bloom, tilt, band, focusY, vignette, exposure, saturation, warm: [r,g,b], shadowTint: [r,g,b] },
   camMargin: { x0, x1, z0, z1 },  // 镜头离地图边缘的最小距离（可视宽约 22、高约 13）
+  bake: true,                     // 静态道具按材质合批（会动的物件需 world.add(..., { dynamic: true })）
+  spriteLift: 0.06,               // 像素角色自发光，夜景/暗场景调高（旧坊 0.28）
   padFill: '.',                   // 地图外延填充
   spawns: { default: {x,z,dir}, fromTown: {...}, ... },
   exits: [{ x0, z0, x1, z1, to: 'mapId', spawn: 'spawnName', cond?: (g) => bool }],
@@ -91,7 +93,13 @@ x 向右（东），z 向下（南，朝向镜头），y 向上。网格 1 格 =
 - 装备 EQUIP：tieren / xuantie / qingfeng（墨衡剑），tongling / yinyue（巫月杖），buyi / yinsi / pijia / jiguanjia（甲），pinganjie / qingyu / shenxing / shechong / tongjing（饰物）。
 - 关键 flags：`gotShard` `chenboBlessing` `townGateOpen` `birdQuest`('active'|'found'|'done') `teaQuest` `sealUnlocked`（战斗中可用「炼妖·摄魂」）。
 
-## 调试
+## 调试与测试
+- `?fast`：剧情逻辑快速测试——对话跳过并打印「[剧情]」日志、选项自动选第 0 项（`&pick=1` 选第 1 项）、战斗直接胜利、演出瞬间完成。
+- `?dtcap=0.25`：放宽单帧时间上限，便于在软件渲染的无头浏览器里测试。
+- `tools/autopilot.js`：在 `?fast` 下自动触发当前地图的触发器、调查点、NPC 与出口。
+- `tools/vite.nohmr.config.js`：关闭热更新推送的测试服务器（避免文件改动打断自动测试）。
+- `python3 tools/subset_fonts.py`：文本改动后重新生成字体子集。
+
 - `npm run dev` 后打开 `http://127.0.0.1:5173/?debug`。
 - 控制台：`game.debugStart({ map: 'forest', spawn: 'fromTown', flags: {...}, party: ['moheng','wuyue'], lv: 3 })`；`game.debugBattle(['taotie'], 'boss', { boss: true })`。
 - 自动测试：`node tools/play.mjs steps.json 输出目录`，steps 为 `[["wait",ms],["eval","js"],["key","Space",次数],["hold","ArrowUp",ms],["mash",ms,"Space"],["shot","文件名"]]`。
