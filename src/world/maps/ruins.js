@@ -12,9 +12,10 @@ const W = 40, H = 46;
 const START = [1, 3, 4];   // 木 火 土
 const ANSWER = [0, 2, 1];  // 金 水 木 —— 金生水，水生木，木生火
 const PED = [[14.6, 21.0], [20, 21.7], [25.4, 21.0]];
-const GUARD_POS = [20, 14.3];
-const WRECK_POS = [21.5, 15.3];
-const SHISHU_POS = [22.9, 7.9];
+const GUARD_POS = [20, 13.0];
+const WRECK_POS = [21.6, 13.9];
+const SHISHU_POS = [22.9, 6.9];
+const DING = [20, 5.3];
 
 const raf = () => new Promise((r) => requestAnimationFrame(r));
 async function tween(ms, fn) {
@@ -43,19 +44,20 @@ function grid(F) {
   // 外院 ↔ 中庭 的残墙缺口
   fillRect(g, 15, 24, 24, 24, 'r');
   // 中庭与两侧院
-  fillRect(g, 2, 12, 37, 23, 'W');
+  fillRect(g, 2, 10, 37, 23, 'W');
   fillRect(g, 10, 19, 29, 23, 'r');
   fillRect(g, 3, 13, 8, 23, 'r');     // 西：藏书阁
   fillRect(g, 31, 13, 36, 23, 'r');   // 东：工坊
   fillRect(g, 9, 20, 9, 21, 'r'); fillRect(g, 30, 20, 30, 21, 'r');
   // 长廊：两侧水池
-  fillRect(g, 10, 13, 29, 17, '~');
-  fillRect(g, 17, 13, 22, 17, 'r');
+  fillRect(g, 10, 11, 29, 17, '~');
+  fillRect(g, 17, 11, 22, 17, 'r');
   fillRect(g, 18, 18, 21, 18, F.ruinsGateOpen ? 'r' : 'Y');
   // 鼎室
-  fillRect(g, 9, 1, 30, 12, 'W');
-  fillRect(g, 10, 2, 29, 11, 'd');
-  fillRect(g, 18, 12, 21, 12, F.ruinsSluiceOpen ? 'd' : 'Y');
+  fillRect(g, 9, 1, 30, 10, 'W');
+  fillRect(g, 10, 2, 29, 9, 'd');
+  fillRect(g, 10, 10, 29, 10, 'Y');   // 低矮的石栏（视线可以看进鼎室）
+  fillRect(g, 18, 10, 21, 10, F.ruinsSluiceOpen ? 'd' : 'Y');
   return toRows(g);
 }
 
@@ -195,7 +197,7 @@ export default function ruins(game) {
     await ctx.say('wuyue', '哼，还不是多亏我提点。');
     await ctx.say('moheng', '是是是，多谢巫姑娘指点。');
     await ctx.say('wuyue', '……「巫姑娘」？听着怪别扭的。叫我巫月就行。');
-    await ctx.pan(20, 15.5, 1.4);
+    await ctx.pan(20, 14.0, 1.4);
     ctx.sfx('gear');
     setGuardAwake(true); await ctx.wait(220); setGuardAwake(false); await ctx.wait(160); setGuardAwake(true); await ctx.wait(300); setGuardAwake(false);
     await ctx.narr('门后是一道长廊，两侧水池里映着最后一抹残霞。长廊尽头，一个高大的身影一动不动地立着。');
@@ -204,7 +206,7 @@ export default function ruins(game) {
   }
 
   async function guardScene(ctx) {
-    await ctx.pan(20, 15, 1.0);
+    await ctx.pan(20, 13.6, 1.0);
     await ctx.narr('那是一尊铜甲傀儡，足有两人高，拄着一柄长刃，挡在鼎室门前。');
     await ctx.say('moheng', '是「丙一」……旧坊的护坊傀儡，师叔亲手造的。');
     await ctx.say('moheng', '我七岁那年来旧坊，就是它把我扛在肩膀上，绕着外院走了一整圈。');
@@ -229,7 +231,7 @@ export default function ruins(game) {
     R.wreckSolid = ctx.world.solidRect(WRECK_POS[0] - 0.8, WRECK_POS[1] - 0.35, WRECK_POS[0] + 0.8, WRECK_POS[1] + 0.35);
     ctx.sfx('break'); ctx.shake(0.5);
     await ctx.narr('傀儡轰然跪倒，胸甲裂开，露出层层叠叠的榫卯与铜簧。那抹碧光闪了两下，熄灭了。');
-    await ctx.walk('player', 20.4, 15.6, 2);
+    await ctx.walk('player', 20.5, 14.4, 2);
     ctx.face('player', 'right');
     await ctx.say('moheng', '……机芯里卡着什么东西。');
     await ctx.narr('一个用油布仔细裹好的小包。里面是一册手札，和一枚刻着「坎」字的青铜钥匙。');
@@ -258,11 +260,11 @@ export default function ruins(game) {
     ctx.sfx('door'); ctx.shake(1.6);
     R.wheelBoost = 1;
     setTimeout(() => ctx.sfx('gear'), 500); setTimeout(() => ctx.sfx('gear'), 1300);
-    burst([17.6, 12.2, 22.4, 13.4], '#9ad8ff', 50, [0, 3], 3000, true, 0.08);
-    await tween(2600, (k) => { bars.position.y = ease(k) * 2.7; });
-    for (let x = 18; x <= 21; x++) ctx.world.setCell(x, 12, 'd');
+    burst([17.6, 10.2, 22.4, 11.4], '#9ad8ff', 50, [0, 3], 3000, true, 0.08);
+    await tween(2600, (k) => { bars.position.y = -2.6 * ease(k); });
+    for (let x = 18; x <= 21; x++) ctx.world.setCell(x, 10, 'd');
     ctx.flags.ruinsSluiceOpen = true;
-    await ctx.narr('远处，外院的水车骤然转快，水声隆隆。整座旧坊的机关仿佛同时醒了过来，闸门在铁链声中缓缓升起。');
+    await ctx.narr('远处，外院的水车骤然转快，水声隆隆。整座旧坊的机关仿佛同时醒了过来，青铜闸门在隆隆声中缓缓沉入地槽。');
     ctx.face('wuyue', 'up');
     await ctx.emote('wuyue', '…', 900);
     await ctx.say('wuyue', '铃铛……不响了。');
@@ -278,13 +280,13 @@ export default function ruins(game) {
     ctx.remove('shishu');
     const sh = ctx.spawn({ id: 'shishu', look: 'shishu', x: SHISHU_POS[0], z: SHISHU_POS[1], dir: 'left' });
     sh.pose = 'ko';
-    await ctx.pan(21, 7.4, 1.6);
+    await ctx.pan(21, 6.6, 1.6);
     await ctx.narr('鼎室里没有点灯。只有大鼎腹中透出的青光，一明一灭，像是有什么东西在里面呼吸。');
     await ctx.narr('大鼎脚下，蜷着一个人影。');
     await ctx.say('moheng', '……师叔？');
     await ctx.emote('player', '！', 600);
     await ctx.say('moheng', '师叔——！');
-    ctx.walk('wuyue', 21.3, 9.9, 4.2);
+    ctx.walk('wuyue', 21.3, 8.9, 4.2);
     await ctx.walk('player', SHISHU_POS[0], SHISHU_POS[1] + 1.25, 5);
     ctx.face('player', 'up');
     await ctx.wait(400);
@@ -318,18 +320,18 @@ export default function ruins(game) {
     ctx.music('tension');
     ctx.sfx('whoosh'); ctx.flash('#2a1030', 500, 0.6);
     await ctx.say('heipao', '晚了。');
-    const hp = ctx.spawn({ id: 'heipao', look: 'heipao', x: 26.4, z: 1.7, dir: 'down' });
+    const hp = ctx.spawn({ id: 'heipao', look: 'heipao', x: 26.4, z: 1.6, dir: 'down' });
     hp.y = 2.4; hp.sync();
     ctx.face('player', 'heipao'); ctx.face('wuyue', 'heipao');
-    await ctx.pan(24.5, 5, 1.0);
+    await ctx.pan(24, 4.8, 1.0);
     await ctx.narr('后墙的阴影里，有人轻轻落了下来。黑袍，覆面，脚步没有一点声音。');
     ctx.sfx('dodge');
-    await tween(520, (k) => { hp.z = 1.7 + k * 1.5; hp.y = 2.4 * (1 - k) + Math.sin(k * Math.PI) * 0.7; });
+    await tween(520, (k) => { hp.z = 1.6 + k * 1.4; hp.y = 2.4 * (1 - k) + Math.sin(k * Math.PI) * 0.7; });
     hp.y = 0; ctx.shake(0.2);
     await ctx.say('heipao', '墨家的小子。九鼎，不是你们能碰的东西。');
     await ctx.say('moheng', '你就是伤了师叔的人？');
     await ctx.say('heipao', '他守着一口假鼎、一张旧图、一屋子不会动的木头，守了二十年。我不过是替他卸下担子。');
-    await ctx.walk('heipao', 22.4, 4.5, 1.4);
+    await ctx.walk('heipao', 22.5, 3.9, 1.4);
     ctx.face('heipao', 'player');
     await ctx.say('heipao', '至于开鼎的钥匙——多谢你一路送来。');
     ctx.face('heipao', 'left');
@@ -343,14 +345,14 @@ export default function ruins(game) {
     await tween(1500, (k) => {
       const e = ease(k);
       const up = Math.min(1, k * 2.2);
-      scroll.position.set(20 + (22.2 - 20) * Math.max(0, (k - 0.45) / 0.55), 3.4 + up * 1.2 - Math.max(0, k - 0.45) * 2.6, 6.2 + (4.6 - 6.2) * e);
+      scroll.position.set(20 + (22.3 - 20) * Math.max(0, (k - 0.45) / 0.55), 3.4 + up * 1.2 - Math.max(0, k - 0.45) * 2.6, DING[1] + (4.0 - DING[1]) * e);
       scroll.rotation.y = k * 6; sHalo.position.copy(scroll.position);
     });
     w.scene.remove(scroll); w.scene.remove(sHalo);
     await ctx.say('heipao', '《九州鼎图》，归玄冥了。');
     await ctx.say('shishu', '住手……那图上的东西，不是给人用的……');
     await ctx.say('wuyue', '想走？先问过我的铃铛！');
-    await ctx.walk('wuyue', 21.9, 8.4, 5);
+    await ctx.walk('wuyue', 21.6, 7.6, 5);
     ctx.sfx('fire'); ctx.flash('#ff9a6a', 300, 0.5);
     await ctx.wait(200);
     ctx.face('heipao', 'wuyue');
@@ -370,15 +372,15 @@ export default function ruins(game) {
     const tHalo = A.halo('#b060ff', 0.9, 0.9);
     w.scene.add(tal); w.scene.add(tHalo);
     ctx.sfx('whoosh');
-    await tween(450, (k) => { tal.position.set(22.2 - k * 1.2, 1.6 + Math.sin(k * Math.PI) * 0.4, 4.6 + k * 1.3); tal.rotation.z = k * 9; tHalo.position.copy(tal.position); });
+    await tween(450, (k) => { tal.position.set(22.3 - k * 1.2, 1.6 + Math.sin(k * Math.PI) * 0.4, 4.0 + k * 1.2); tal.rotation.z = k * 9; tHalo.position.copy(tal.position); });
     w.scene.remove(tal); w.scene.remove(tHalo);
     R.dingMode = 'evil';
     ctx.sfx('roar'); ctx.shake(2.2); ctx.flash('#8a40ff', 700, 0.75);
-    burst([17.5, 4, 22.5, 8], '#b070ff', 120, [0.5, 5], 4500, true, 0.14);
+    burst([17.5, 3, 22.5, 7], '#b070ff', 120, [0.5, 5], 4500, true, 0.14);
     await ctx.narr('残片与大鼎同时发出刺耳的长鸣。鼎口喷出浓稠的黑气，在半空凝成一张巨口、两只燃烧的眼——');
     // 饕餮之影浮现
     R.taotie.visible = true;
-    await ctx.pan(20, 6, 0.6);
+    await ctx.pan(20, 5.6, 0.6);
     const tm = R.taotie.userData.mat;
     await tween(1600, (k) => { const e = ease(k); tm.opacity = e * 0.92; R.taotie.scale.setScalar(0.6 + e * 0.4); R.taotie.position.y = 0.8 + e * 1.4; });
     await ctx.say('heipao', '饕餮，贪食之兽。饿了上千年……好好吃一顿吧。');
@@ -413,7 +415,7 @@ export default function ruins(game) {
     const w = ctx.world;
     const sh = ctx.actor('shishu');
     ctx.face('player', 'up'); ctx.face('wuyue', 'up');
-    await ctx.pan(20.6, 6.6, 0.8);
+    await ctx.pan(20.6, 6.0, 0.8);
     await ctx.narr('饕餮之影发出最后一声哀嚎。黑气翻卷着，被墨衡怀中的残片一口一口吸了进去。');
     ctx.sfx('seal');
     const p = w.player;
@@ -483,7 +485,7 @@ export default function ruins(game) {
 
     // 尾声：山巅上的黑袍人
     await ctx.fadeOut(900);
-    const hp = ctx.spawn({ id: 'heipao', look: 'heipao', x: 34.5, z: 2.2, dir: 'down' });
+    const hp = ctx.spawn({ id: 'heipao', look: 'heipao', x: 34.5, z: 2.6, dir: 'down' });
     hp.y = 3.4; hp.sync();
     ctx.flags.noEncounter = true;
     await ctx.pan(31.5, 6.2, 0.01);
@@ -701,10 +703,10 @@ export default function ruins(game) {
       [[31.6, 22.5, 'c'], [32.4, 22.6, 'c'], [34.4, 22.6, 'j']].forEach(([x, z, k]) => add(k === 'c' ? P.crate(0.55) : P.jar(1.0, '#6a4a3a'), x, z, { solid: [0.6, 0.6] }));
 
       // ===== 长廊 =====
-      [[16.9, 13.6], [23.1, 13.6], [16.9, 16.0], [23.1, 16.0]].forEach(([x, z]) => add(P.pillar({ h: 3.2 }), x, z, { fade: true }));
+      [[16.9, 11.6], [23.1, 11.6], [16.9, 14.6], [23.1, 14.6]].forEach(([x, z]) => add(P.pillar({ h: 2.8 }), x, z, { fade: true }));
       add(P.lantern({ light: true, intensity: 4.5, color: '#ffb070' }), 22.6, 16.8, { solid: [0.3, 0.3] });
-      scene.add(A.lilyPads(14, [10.2, 13.2, 16.4, 17.6], 3));
-      scene.add(A.lilyPads(14, [23.6, 13.2, 29.8, 17.6], 9));
+      scene.add(A.lilyPads(16, [10.2, 11.2, 16.4, 17.6], 3));
+      scene.add(A.lilyPads(16, [23.6, 11.2, 29.8, 17.6], 9));
       // 铜甲傀儡 / 残骸
       R.guard = A.spriteOf('puppetBronze', { scale: 1.25, glow: 0.35 });
       add(R.guard, GUARD_POS[0], GUARD_POS[1], { dynamic: true });
@@ -717,26 +719,28 @@ export default function ruins(game) {
       if (F.ruinsGuardDone) { R.guard.visible = false; R.wreckSolid = w.solidRect(WRECK_POS[0] - 0.8, WRECK_POS[1] - 0.35, WRECK_POS[0] + 0.8, WRECK_POS[1] + 0.35); }
       else { R.wreck.visible = false; R.guardSolid = w.solidRect(GUARD_POS[0] - 0.8, GUARD_POS[1] - 0.4, GUARD_POS[0] + 0.8, GUARD_POS[1] + 0.4); }
       // 鼎室水闸
-      R.sluice = add(A.sluiceGate(), 20, 12.5, { fade: true, dynamic: true });
-      if (F.ruinsSluiceOpen) { R.sluice.userData.bars.position.y = 2.7; R.sluice.userData.lock.rotation.z = -Math.PI; }
+      R.sluice = add(A.sluiceGate(), 20, 10.5, { fade: true, dynamic: true });
+      if (F.ruinsSluiceOpen) { R.sluice.userData.bars.position.y = -2.6; R.sluice.userData.lock.rotation.z = -Math.PI; }
+      // 鼎室前的石栏
+      for (const [x0, x1] of [[9.8, 17.6], [22.4, 30.2]]) add(A.balustrade(x1 - x0), (x0 + x1) / 2, 10.5, { fade: true });
 
       // ===== 鼎室 =====
-      R.ding = add(P.ding({ s: 2.3, glow: true }), 20, 6.2, { solid: [3.0, 2.6], dynamic: true });
-      R.seal = add(A.floorSeal(3.3), 20, 6.2);
-      add(P.brazier(), 14.6, 4.4, { solid: [0.6, 0.6] });
-      add(P.brazier(), 25.4, 4.4, { solid: [0.6, 0.6] });
-      [[14.6, 9.6], [25.4, 9.6]].forEach(([x, z]) => { const b = add(P.brazier({ light: false }), x, z, { solid: [0.6, 0.6] }); const h = A.halo('#ff9a4a', 1.3, 0.5); h.position.y = 1.35; b.add(h); });
-      [[11.2, 3.4], [11.2, 7.0], [11.2, 10.4], [28.8, 3.4], [28.8, 7.0], [28.8, 10.4]].forEach(([x, z], i) => add(P.pillar({ h: 3.8, broken: i === 4 }), x, z, { solid: [0.6, 0.6], fade: true }));
+      R.ding = add(P.ding({ s: 2.3, glow: true }), DING[0], DING[1], { solid: [3.0, 2.6], dynamic: true });
+      R.seal = add(A.floorSeal(3.1), DING[0], DING[1]);
+      add(P.brazier(), 14.6, 3.8, { solid: [0.6, 0.6] });
+      add(P.brazier(), 25.4, 3.8, { solid: [0.6, 0.6] });
+      [[14.6, 8.2], [25.4, 8.2]].forEach(([x, z]) => { const b = add(P.brazier({ light: false }), x, z, { solid: [0.6, 0.6] }); const h = A.halo('#ff9a4a', 1.3, 0.5); h.position.y = 1.35; b.add(h); });
+      [[11.2, 3.2], [11.2, 6.0], [11.2, 8.8], [28.8, 3.2], [28.8, 6.0], [28.8, 8.8]].forEach(([x, z], i) => add(P.pillar({ h: 3.8, broken: i === 4 }), x, z, { solid: [0.6, 0.6], fade: true }));
       add(A.banner('兼爱'), 15.6, 2.08); add(A.banner('非攻'), 24.4, 2.08);
       add(A.rubble(21, 1.0), 27.4, 2.8, { solid: [1.0, 0.6] });
       add(A.rubble(23, 0.8), 12.6, 5.0, { solid: [0.8, 0.5] });
-      const beamWood = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.3, 0.3), P.MAT.darkWood()); beamWood.position.set(26.6, 0.18, 7.6); beamWood.rotation.y = 0.5; beamWood.castShadow = true; scene.add(beamWood);
-      const dingLight = new THREE.PointLight('#5affd0', 9, 11, 1.4); dingLight.position.set(20, 4.0, 6.6); scene.add(dingLight);
-      const dingHalo = A.halo('#5affd0', 3.6, 0.45); dingHalo.position.set(20, 3.2, 6.2); scene.add(dingHalo);
+      const beamWood = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.3, 0.3), P.MAT.darkWood()); beamWood.position.set(26.4, 0.18, 6.6); beamWood.rotation.y = 0.5; beamWood.castShadow = true; scene.add(beamWood);
+      const dingLight = new THREE.PointLight('#5affd0', 9, 11, 1.4); dingLight.position.set(20, 4.0, 5.8); scene.add(dingLight);
+      const dingHalo = A.halo('#5affd0', 3.6, 0.45); dingHalo.position.set(20, 3.2, 5.3); scene.add(dingHalo);
       R.taotie = A.spriteOf('taotie', { scale: 1.0, glow: 1.6, color: '#c8a8e8' });
       R.taotie.userData.mat.transparent = true; R.taotie.userData.mat.alphaTest = 0.02; R.taotie.userData.mat.opacity = 0; R.taotie.userData.mat.depthWrite = false;
       R.taotie.visible = false;
-      add(R.taotie, 20, 5.9, { y: 0.8, dynamic: true });
+      add(R.taotie, 20, 5.0, { y: 0.8, dynamic: true });
       // 指路的青光
       R.beam = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 9), new THREE.MeshBasicMaterial({ color: '#8affe0', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
       R.beam.rotation.x = -Math.PI / 2; R.beam.visible = false; scene.add(R.beam);
@@ -766,21 +770,21 @@ export default function ruins(game) {
       const mists = [
         [mistLayer({ w: 80, d: 6, y: 0.4, opacity: 0.12, speed: 0.006, seed: 2, color: '#e8c8d8' }), 20, 49, 0.4],
         [mistLayer({ w: 60, d: 5, y: 0.3, opacity: 0.09, speed: 0.005, seed: 6, color: '#c8b8e8' }), 20, 31, 0.3],
-        [mistLayer({ w: 40, d: 6, y: 0.25, opacity: 0.2, speed: 0.008, seed: 8, color: '#b090e0' }), 20, 8, 0.25],
-        [mistLayer({ w: 30, d: 4, y: 0.15, opacity: 0.2, speed: -0.006, seed: 9, color: '#b8c8f0' }), 20, 15.5, 0.15],
+        [mistLayer({ w: 40, d: 5, y: 0.25, opacity: 0.16, speed: 0.008, seed: 8, color: '#b090e0' }), 20, 6.5, 0.25],
+        [mistLayer({ w: 30, d: 4, y: 0.15, opacity: 0.16, speed: -0.006, seed: 9, color: '#b8c8f0' }), 20, 14.5, 0.15],
       ];
       for (const [m, x, z, y] of mists) { w.add(m, x, z, { y }); m.rotation.x = -Math.PI / 2.6; }
       scene.add(godRays({ count: 5, area: [4, 24, 34, 36], color: '#ffb880', opacity: 0.09, seed: 3 }));
-      scene.add(godRays({ count: 3, area: [14, 2, 26, 9], color: '#c8c0ff', opacity: 0.1, seed: 7 }));
+      scene.add(godRays({ count: 3, area: [14, 2, 26, 8], color: '#c8c0ff', opacity: 0.1, seed: 7 }));
       // 萤火、余烬、尘埃、妖气
       scene.add(particles({ count: 60, area: [4, 38, 36, 46], y: [0.3, 3], color: '#d8ff8a', size: 0.06, speed: 0.35 }));
       scene.add(particles({ count: 50, area: [3, 25, 37, 37], y: [0.3, 3.5], color: '#e8ffa0', size: 0.055, speed: 0.3 }));
       scene.add(particles({ count: 40, area: [14, 18, 26, 37], y: [0.5, 3.5], color: '#ffa860', size: 0.045, speed: 0.9 }));
       scene.add(particles({ count: 70, area: [3, 12, 37, 46], y: [0.2, 6], color: '#ffe0c0', size: 0.03, speed: 0.25 }));
-      scene.add(particles({ count: 40, area: [10, 12, 30, 18], y: [0.2, 3], color: '#9a70ff', size: 0.06, speed: 0.4 }));
-      R.miasma = particles({ count: 120, area: [10, 1, 30, 12], y: [0.2, 5], color: '#a860ff', size: 0.075, speed: 0.45 });
+      scene.add(particles({ count: 40, area: [10, 10, 30, 18], y: [0.2, 3], color: '#9a70ff', size: 0.06, speed: 0.4 }));
+      R.miasma = particles({ count: 120, area: [10, 1, 30, 10], y: [0.2, 5], color: '#a860ff', size: 0.075, speed: 0.45 });
       scene.add(R.miasma);
-      scene.add(particles({ count: 40, area: [17, 4, 23, 8.5], y: [1.5, 5], color: '#7affd8', size: 0.06, speed: 0.6 }));
+      scene.add(particles({ count: 40, area: [17, 3, 23, 7.5], y: [1.5, 5], color: '#7affd8', size: 0.06, speed: 0.6 }));
       scene.add(particles({ count: 50, area: [3, 13, 9, 23], y: [0.3, 4], color: '#ffe8b0', size: 0.035, speed: 0.2 }));
       scene.add(particles({ count: 30, area: [31, 13, 37, 23], y: [0.3, 4], color: '#ffd090', size: 0.035, speed: 0.2 }));
       if (F.ruinsBossDone) R.miasma.material.uniforms.opacity.value = 0.25;
@@ -935,14 +939,14 @@ export default function ruins(game) {
         await ctx.say('moheng', '……走吧。得快点找到他。');
       } },
       // 水闸
-      { x: 20, z: 13.4, r: 1.4, y: 2.2, icon: '闸', enabled: (gg) => gg.state.flags.ruinsGuardDone && !gg.state.flags.ruinsSluiceOpen, async onInteract(ctx) { await openSluice(ctx); } },
+      { x: 20, z: 11.4, r: 1.4, y: 2.0, icon: '闸', enabled: (gg) => gg.state.flags.ruinsGuardDone && !gg.state.flags.ruinsSluiceOpen, async onInteract(ctx) { await openSluice(ctx); } },
       // 丙一残骸
       { x: WRECK_POS[0], z: WRECK_POS[1] + 0.5, r: 1.2, icon: '傀', enabled: (gg) => !!gg.state.flags.ruinsGuardDone, async onInteract(ctx) {
         await ctx.narr('丙一跪在长廊上，铜甲上满是裂痕。像是在守着什么，又像是在请罪。');
         await ctx.say('moheng', ctx.flags.ruinsBossDone ? '师叔说你还有得救。……等我回来，丙一。' : '等这一切结束，我一定把你修好。');
       } },
       // 大鼎（战后）
-      { x: 20, z: 8.0, r: 1.6, icon: '鼎', enabled: (gg) => !!gg.state.flags.ruinsBossDone, async onInteract(ctx) {
+      { x: 20, z: 7.1, r: 1.6, icon: '鼎', enabled: (gg) => !!gg.state.flags.ruinsBossDone, async onInteract(ctx) {
         await ctx.narr('镇鼎静静立着，青光温润如水。鼎腹已经空了——那卷图，不在了。');
       } },
       // 宝箱
@@ -965,8 +969,8 @@ export default function ruins(game) {
 
     triggers: () => [
       { id: 'courtyard', x0: 10, z0: 18.8, x1: 30, z1: 23.6, run: courtyard },
-      { id: 'guard', x0: 16.5, z0: 12.5, x1: 23.5, z1: 16.7, once: false, cond: (gg) => gg.state.flags.ruinsGateOpen && !gg.state.flags.ruinsGuardDone, run: guardScene },
-      { id: 'climax', x0: 9.5, z0: 1, x1: 30.5, z1: 11.3, once: false, cond: (gg) => gg.state.flags.ruinsSluiceOpen && !gg.state.flags.ruinsBossDone, run: climax },
+      { id: 'guard', x0: 16.5, z0: 10.5, x1: 23.5, z1: 16.7, once: false, cond: (gg) => gg.state.flags.ruinsGateOpen && !gg.state.flags.ruinsGuardDone, run: guardScene },
+      { id: 'climax', x0: 9.5, z0: 1, x1: 30.5, z1: 9.6, once: false, cond: (gg) => gg.state.flags.ruinsSluiceOpen && !gg.state.flags.ruinsBossDone, run: climax },
     ],
 
     async onEnter(ctx) {

@@ -171,43 +171,40 @@ export function mohistLamp() {
 export function wuxingGate() {
   const g = new THREE.Group();
   const st = stoneMat();
-  // 门框
+  // 门框（压低，避免挡住门后长廊的视线）
   for (const sx of [-2.35, 2.35]) {
-    g.add(box(0.7, 3.4, 0.9, st, sx, 1.7, 0));
+    g.add(box(0.7, 2.7, 0.9, st, sx, 1.35, 0));
     g.add(box(0.9, 0.3, 1.1, st, sx, 0.15, 0));
+    const cap = box(0.9, 0.2, 1.1, st, sx, 2.8, 0); g.add(cap);
+    const orb = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), MAT.bronze()); orb.position.set(sx, 3.02, 0); g.add(orb);
   }
-  g.add(box(5.6, 0.55, 1.0, st, 0, 3.55, 0));
-  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.42), new THREE.MeshLambertMaterial({ map: T.glyphTex('五行机关', { w: 80, h: 20, bg: '#1d2a2a', fg: '#e2b84e', font: 'bold 15px serif', border: '#8a7a3a', pixel: false }) }));
-  plaque.position.set(0, 3.55, 0.51);
+  g.add(box(4.0, 0.36, 0.7, st, 0, 2.62, 0));
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.32), new THREE.MeshLambertMaterial({ map: T.glyphTex('五行机关', { w: 80, h: 16, bg: '#1d2a2a', fg: '#e2b84e', font: 'bold 13px serif', border: '#8a7a3a', pixel: false }) }));
+  plaque.position.set(0, 2.62, 0.36);
   g.add(plaque);
-  const roof = P.chineseRoof(6.2, 1.5, 0.6, '#3a4248'); roof.position.y = 3.8; g.add(roof);
   // 门板（青铜，可下沉）
   const door = new THREE.Group();
   const tex = T.bronzeTex().clone(); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3, 2); tex.needsUpdate = true;
   const dmat = new THREE.MeshLambertMaterial({ map: tex, emissive: new THREE.Color('#141008') });
-  door.add(box(4.0, 3.1, 0.45, dmat, 0, 1.55, 0));
-  // 门缝
-  door.add(box(0.05, 3.0, 0.48, lam('ru_seam', { color: '#1a140c' }), 0, 1.55, 0));
-  // 门钉
+  door.add(box(4.0, 2.42, 0.45, dmat, 0, 1.21, 0));
+  door.add(box(0.05, 2.36, 0.48, lam('ru_seam', { color: '#1a140c' }), 0, 1.21, 0));
   const gold = MAT.gold();
-  for (let i = 0; i < 4; i++) for (const sx of [-1, 1]) { const n = cyl(0.06, 0.06, 0.06, gold, 6, sx * (0.45 + i * 0.42), 0.35, 0.25); n.rotation.x = Math.PI / 2; door.add(n); }
+  for (let i = 0; i < 4; i++) for (const sx of [-1, 1]) { const n = cyl(0.06, 0.06, 0.06, gold, 6, sx * (0.45 + i * 0.42), 0.3, 0.25); n.rotation.x = Math.PI / 2; door.add(n); }
   const rings = [];
   [-1.25, 0, 1.25].forEach((x, i) => {
     const ring = new THREE.Group();
     const gear = P.gear({ r: 0.42, teeth: 10, thick: 0.12 });
     ring.add(gear);
     const gm = new THREE.MeshBasicMaterial({ map: glyph('金', ELEM_COLOR[0]), transparent: true, depthWrite: false, toneMapped: false });
-    const gp = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.46), gm);
+    const gp = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), gm);
     gp.position.z = 0.13; ring.add(gp);
-    ring.position.set(x, 1.95, 0.26);
+    ring.position.set(x, 1.45, 0.26);
     door.add(ring);
     rings.push({ group: ring, gear, mat: gm, i });
   });
-  // 环与环之间的连杆
-  door.add(box(2.6, 0.07, 0.06, gold, 0, 1.95, 0.27));
-  door.add(box(3.3, 0.1, 0.06, gold, 0, 0.9, 0.25));
+  door.add(box(2.6, 0.07, 0.06, gold, 0, 1.45, 0.27));
+  door.add(box(3.3, 0.1, 0.06, gold, 0, 0.62, 0.25));
   g.add(door);
-  // 门后的暗处（门下沉后露出的门洞阴影）
   g.userData.door = door; g.userData.rings = rings;
   return g;
 }
@@ -251,7 +248,7 @@ export function pedestal(idx) {
     if (pu > 0) g.userData.pulse = Math.max(0, pu - 0.03);
     const k = 1 + g.userData.pulse * 1.8;
     gp.scale.setScalar(k * (g.userData.dim ? 0.9 : 1));
-    h.material.opacity = (g.userData.solved ? 0.9 : 0.5) * (1 + g.userData.pulse) * (g.userData.dim ? 0.3 : 1);
+    h.material.opacity = (g.userData.solved ? 0.6 : 0.5) * (1 + g.userData.pulse * 0.6) * (g.userData.dim ? 0.3 : 1);
   };
   return g;
 }
@@ -260,24 +257,37 @@ export function pedestal(idx) {
 export function sluiceGate() {
   const g = new THREE.Group();
   const st = stoneMat();
-  for (const sx of [-2.3, 2.3]) g.add(box(0.6, 3.6, 0.8, st, sx, 1.8, 0));
-  g.add(box(5.2, 0.5, 0.9, st, 0, 3.75, 0));
-  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.36), new THREE.MeshLambertMaterial({ map: T.glyphTex('鼎室', { w: 48, h: 16, bg: '#2a1a1a', fg: '#e2b84e', font: 'bold 13px serif', border: '#8a6a3a', pixel: false }) }));
-  plaque.position.set(0, 3.75, 0.46); g.add(plaque);
-  const roof = P.chineseRoof(5.8, 1.4, 0.6, '#2e3440'); roof.position.y = 4.0; g.add(roof);
+  for (const sx of [-2.3, 2.3]) {
+    g.add(box(0.6, 2.5, 0.8, st, sx, 1.25, 0));
+    const lamp = new THREE.Mesh(new THREE.OctahedronGeometry(0.15, 0), MAT.bronze()); lamp.position.set(sx, 2.66, 0); g.add(lamp);
+  }
+  g.add(box(4.2, 0.3, 0.6, st, 0, 2.42, 0));
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.26), new THREE.MeshLambertMaterial({ map: T.glyphTex('鼎室', { w: 48, h: 12, bg: '#2a1a1a', fg: '#e2b84e', font: 'bold 11px serif', border: '#8a6a3a', pixel: false }) }));
+  plaque.position.set(0, 2.42, 0.31); g.add(plaque);
   const bars = new THREE.Group();
   const br = MAT.bronze();
-  for (let i = 0; i < 9; i++) bars.add(box(0.12, 3.3, 0.12, br, -1.8 + i * 0.45, 1.65, 0));
-  for (const y of [0.5, 1.6, 2.7]) bars.add(box(4.0, 0.12, 0.14, br, 0, y, 0));
+  for (let i = 0; i < 9; i++) bars.add(box(0.12, 2.2, 0.12, br, -1.8 + i * 0.45, 1.1, 0));
+  for (const y of [0.35, 1.15, 1.95]) bars.add(box(4.0, 0.12, 0.14, br, 0, y, 0));
   // 「坎」字锁盘
   const lock = new THREE.Group();
   const lg = P.gear({ r: 0.32, teeth: 8, thick: 0.1 }); lock.add(lg);
   const lm = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.36), new THREE.MeshBasicMaterial({ map: glyph('坎', '#7ac8ff'), transparent: true, depthWrite: false, toneMapped: false }));
   lm.position.z = 0.07; lock.add(lm);
-  lock.position.set(0, 1.6, 0.14);
+  lock.position.set(0, 1.15, 0.14);
   bars.add(lock);
   g.add(bars);
   g.userData.bars = bars; g.userData.lock = lg;
+  return g;
+}
+
+// 低矮石栏
+export function balustrade(len = 6) {
+  const g = new THREE.Group();
+  const st = stoneMat();
+  const n = Math.max(2, Math.round(len / 1.3));
+  for (let i = 0; i <= n; i++) g.add(box(0.26, 0.95, 0.26, st, -len / 2 + (i / n) * len, 0.47, 0));
+  g.add(box(len, 0.14, 0.2, st, 0, 0.82, 0));
+  g.add(box(len, 0.1, 0.16, mossMat(), 0, 0.3, 0));
   return g;
 }
 
