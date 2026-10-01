@@ -165,7 +165,7 @@ export function particles({ count = 200, area = [0, 0, 30, 30], y = [0, 6], colo
       time: shared.time, color: { value: new THREE.Color(color) }, size: { value: size * 600 },
       yMin: { value: y[0] }, yRange: { value: y[1] - y[0] }, speed: { value: speed },
       map: { value: tex || radialTex() }, opacity: { value: opacity },
-      fall: { value: kind === 'fall' ? 1 : 0 },
+      fall: { value: kind === 'fall' ? 1 : kind === 'smoke' ? 2 : 0 },
     },
     vertexShader: `
       attribute float phase; uniform float time; uniform float size; uniform float yMin; uniform float yRange; uniform float speed; uniform float fall;
@@ -173,7 +173,13 @@ export function particles({ count = 200, area = [0, 0, 30, 30], y = [0, 6], colo
       void main(){
         vec3 p = position;
         float t = time * speed + phase;
-        if (fall > 0.5) {
+        if (fall > 1.5) {
+          float k = fract(t * 0.12);
+          p.y = yMin + k * yRange;
+          p.x += sin(t * 0.7) * 0.15 + k * 1.2; p.z += cos(t * 0.5) * 0.1;
+          vA = (1.0 - k) * smoothstep(0.0, 0.15, k);
+          vRot = 3.0 + k * 4.0;
+        } else if (fall > 0.5) {
           p.y = yMin + mod(position.y - yMin - t * 0.6, yRange);
           p.x += sin(t * 0.9) * 0.6; p.z += cos(t * 0.7) * 0.3;
           vRot = t * 2.0;
@@ -181,9 +187,9 @@ export function particles({ count = 200, area = [0, 0, 30, 30], y = [0, 6], colo
           p.x += sin(t * 0.37) * 0.8; p.y += sin(t * 0.53) * 0.4; p.z += cos(t * 0.29) * 0.8;
           vRot = 0.0;
         }
-        vA = fall > 0.5 ? 1.0 : 0.35 + 0.65 * (0.5 + 0.5 * sin(t * 2.1));
+        if (fall < 1.5) vA = fall > 0.5 ? 1.0 : 0.35 + 0.65 * (0.5 + 0.5 * sin(t * 2.1));
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
-        gl_PointSize = size / -mv.z;
+        gl_PointSize = size / -mv.z * (fall > 1.5 ? vRot : 1.0);
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
@@ -191,6 +197,7 @@ export function particles({ count = 200, area = [0, 0, 30, 30], y = [0, 6], colo
       varying float vA; varying float vRot;
       void main(){
         vec2 uv = gl_PointCoord - 0.5;
+        if (fall > 1.5) { vec4 tx = texture2D(map, gl_PointCoord); gl_FragColor = vec4(color, tx.a * vA * opacity); return; }
         if (fall > 0.5) { float c = cos(vRot), s = sin(vRot); uv = vec2(c*uv.x - s*uv.y, s*uv.x + c*uv.y); uv.y *= 2.2; if (length(uv) > 0.45) discard; gl_FragColor = vec4(color, opacity); return; }
         vec4 tx = texture2D(map, uv + 0.5);
         gl_FragColor = vec4(color, tx.a * vA * opacity);
@@ -200,4 +207,32 @@ export function particles({ count = 200, area = [0, 0, 30, 30], y = [0, 6], colo
   pts.frustumCulled = false;
   pts.renderOrder = 6;
   return pts;
+}
+
+// 飞鸟（白鹭/燕子）：像素精灵沿路线循环飞过
+export function flyingBirds({ count = 3, from = [0, 6, 20], to = [40, 7, 18], period = 26, color = '#f4f2ea', size = 0.9, seed = 1 } = {}) {
+  const g = new THREE.Group();
+  const frames = [0, 1].map((f) => {
+    const [c, x] = makeCanvas(16, 8);
+    x.fillStyle = color;
+    if (f === 0) { x.fillRect(1, 1, 2, 1); x.fillRect(3, 2, 3, 1); x.fillRect(6, 3, 4, 2); x.fillRect(10, 2, 3, 1); x.fillRect(13, 1, 2, 1); }
+    else { x.fillRect(6, 3, 4, 2); x.fillRect(3, 4, 3, 1); x.fillRect(1, 5, 2, 1); x.fillRect(10, 4, 3, 1); x.fillRect(13, 5, 2, 1); }
+    x.fillStyle = '#e8a040'; x.fillRect(10, 3, 1, 1);
+    return pixelTex(c, { mip: false });
+  });
+  const birds = [];
+  for (let i = 0; i < count; i++) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size / 2), new THREE.MeshBasicMaterial({ map: frames[0], transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, fog: false }));
+    m.userData = { off: i * 0.9 + seed, ph: i * 1.7, dy: (i % 2) * 0.6 };
+    g.add(m); birds.push(m);
+  }
+  g.userData.update = (t) => {
+    birds.forEach((b) => {
+      const k = ((t + b.userData.off * 3) % period) / period;
+      b.position.set(from[0] + (to[0] - from[0]) * k + b.userData.off, from[1] + (to[1] - from[1]) * k + Math.sin(t * 1.3 + b.userData.ph) * 0.3 + b.userData.dy, from[2] + (to[2] - from[2]) * k);
+      b.material.map = frames[Math.floor(t * 4 + b.userData.ph) % 2];
+      b.scale.x = to[0] > from[0] ? -1 : 1;
+    });
+  };
+  return g;
 }

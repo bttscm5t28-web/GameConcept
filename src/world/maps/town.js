@@ -1,7 +1,7 @@
 // 洛水渡：洛水北岸的小渡口（序章 + 城镇）
 import * as P from '../../art/props.js';
 import { makeGrid, fillRect, line, scatter, toRows, chestObj } from './helpers.js';
-import { mistLayer, particles } from '../effects.js';
+import { mistLayer, particles, flyingBirds } from '../effects.js';
 import { registerLook } from '../../art/characters.js';
 
 registerLook('shusheng', { hair: '#2a2220', hairStyle: 'knot', band: '#e8e0cc', skin: '#f1cba6', robe: '#d8d0bc', trim: '#4a5a6a', sash: '#4a5a6a', pants: '#5a5a5a', shoes: '#2b2019', long: true });
@@ -91,6 +91,18 @@ export default function town(game) {
       const m2 = mistLayer({ w: 90, d: 7, y: 0.9, opacity: 0.12, speed: -0.005, seed: 3 }); w.add(m2, 20, 27, { y: 0.9 }); m2.rotation.x = -Math.PI / 2.6;
       w.scene.add(particles({ count: 90, area: [2, 2, 38, 22], y: [0.2, 6], color: '#f2b6c6', size: 0.09, kind: 'fall', additive: false, speed: 0.45 }));
       w.scene.add(particles({ count: 70, area: [2, 2, 38, 24], y: [0.5, 4], color: '#fff3c8', size: 0.05, speed: 0.4 }));
+      // 炊烟
+      [[6, 6.2], [13.5, 6.2], [27, 5.8], [7, 15], [36, 6]].forEach(([x, z], i) => {
+        const sm = particles({ count: 14, area: [x - 0.2, z - 0.2, x + 0.2, z + 0.2], y: [3.6, 8.5], color: '#f2efe8', size: 0.32, kind: 'smoke', additive: false, speed: 0.8 + i * 0.1, opacity: 0.6 });
+        w.scene.add(sm);
+      });
+      // 河上白鹭、蝴蝶
+      w.add(flyingBirds({ count: 3, from: [-6, 5.5, 23], to: [46, 7, 20], period: 32, seed: 1 }), 0, 0);
+      w.scene.add(particles({ count: 12, area: [24, 13, 30, 18], y: [0.3, 1.4], color: '#f6e27a', size: 0.08, speed: 0.9, additive: false }));
+      w.scene.add(particles({ count: 10, area: [3, 3, 12, 10], y: [0.3, 1.4], color: '#ffffff', size: 0.07, speed: 0.9, additive: false }));
+      // 河岸芦苇、荷叶
+      [[2.5, 21.6], [8.6, 21.8], [16.6, 21.7], [24.6, 21.8], [33.5, 21.6], [37.5, 21.8]].forEach(([x, z], i) => w.add(P.reeds({ n: 6 + (i % 3), seed: i + 5 }), x, z));
+      [[5, 23.6], [13, 24.5], [27.5, 23.4], [33, 25], [9, 25]].forEach(([x, z], i) => { const l = P.lotus({ n: 3 + (i % 3), seed: i + 2, flower: i % 2 === 0 }); w.add(l, x, z, { y: -0.19 }); });
     },
 
     npcs: (g) => {

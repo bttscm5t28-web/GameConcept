@@ -299,11 +299,24 @@ export function pier(len = 5, width = 3) {
   return shadowy(g);
 }
 
+function netTex() {
+  return (netTex.t ||= (() => {
+    const c = document.createElement('canvas'); c.width = 32; c.height = 20;
+    const g = c.getContext('2d');
+    g.fillStyle = '#6a5a3a';
+    for (let x = 0; x < 32; x += 3) for (let y = 0; y < 20; y++) g.fillRect(x + (y % 2), y, 1, 1);
+    for (let y = 0; y < 20; y += 3) g.fillRect(0, y, 32, 1);
+    g.fillStyle = '#c9b48a'; g.fillRect(4, 6, 2, 2); g.fillRect(20, 11, 2, 2);
+    const t = new THREE.CanvasTexture(c); t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  })());
+}
+
 export function dryingRack() {
   const g = new THREE.Group();
   for (const sx of [-1, 1]) g.add(box(0.08, 1.8, 0.08, M.darkWood(), sx, 0.9, 0));
   g.add(box(2.2, 0.06, 0.06, M.darkWood(), 0, 1.75, 0));
-  const net = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.2), lam('net', { color: '#8a7a5a', transparent: true, opacity: 0.75, side: THREE.DoubleSide }));
+  const net = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.2), lam('net', { map: netTex(), alphaTest: 0.5, side: THREE.DoubleSide }));
   net.position.set(0, 1.15, 0); g.add(net);
   return shadowy(g);
 }
@@ -395,4 +408,50 @@ export function waterwheel(r = 1.4) {
   for (const s of [-0.4, 0.4]) g.add(box(0.12, r + 0.3, 0.12, M.darkWood(), s, (r + 0.3) / 2, 0));
   g.userData.wheel = wheel;
   return shadowy(g);
+}
+
+// 芦苇丛
+export function reeds({ n = 7, seed = 1, h = 1.6 } = {}) {
+  const g = new THREE.Group();
+  const r = rng(seed);
+  const stem = lam('reedstem', { color: '#8a9a52' });
+  const head = lam('reedhead', { color: '#c8b07a' });
+  for (let i = 0; i < n; i++) {
+    const hh = h * (0.6 + r() * 0.6);
+    const s = box(0.04, hh, 0.04, stem, (r() - 0.5) * 0.9, hh / 2, (r() - 0.5) * 0.5);
+    s.rotation.z = (r() - 0.5) * 0.3;
+    g.add(s);
+    const hd = box(0.08, 0.3, 0.08, head, s.position.x + Math.sin(-s.rotation.z) * hh / 2, hh, s.position.z);
+    hd.rotation.z = s.rotation.z;
+    g.add(hd);
+    const leaf = box(0.03, hh * 0.6, 0.12, stem, s.position.x + 0.08, hh * 0.3, s.position.z);
+    leaf.rotation.z = 0.5;
+    g.add(leaf);
+  }
+  g.userData.sway = true;
+  return shadowy(g);
+}
+
+// 荷叶与荷花（浮在水面）
+export function lotus({ n = 4, seed = 1, flower = true } = {}) {
+  const g = new THREE.Group();
+  const r = rng(seed);
+  const pad = lam('lotuspad', { map: T.foliageTex('#4f8a4a', 11) });
+  for (let i = 0; i < n; i++) {
+    const rad = 0.3 + r() * 0.3;
+    const m = new THREE.Mesh(new THREE.CircleGeometry(rad, 10, 0.3, Math.PI * 2 - 0.3), pad);
+    m.rotation.x = -Math.PI / 2; m.rotation.z = r() * 6;
+    m.position.set((r() - 0.5) * 1.8, 0.01, (r() - 0.5) * 1.2);
+    m.receiveShadow = true;
+    g.add(m);
+  }
+  if (flower) {
+    const pet = lam('lotuspetal', { color: '#f2a6bc', emissive: new THREE.Color('#3a1018') });
+    const f = new THREE.Group();
+    for (let i = 0; i < 6; i++) { const p = box(0.08, 0.22, 0.04, pet, Math.cos(i) * 0.07, 0.11, Math.sin(i) * 0.07); p.rotation.set(Math.sin(i) * 0.5, 0, Math.cos(i) * 0.5); f.add(p); }
+    f.add(box(0.06, 0.06, 0.06, lam('lotuscore', { color: '#f0d060' }), 0, 0.12, 0));
+    f.position.set(0.2, 0.02, 0.1);
+    g.add(f);
+  }
+  return g;
 }
