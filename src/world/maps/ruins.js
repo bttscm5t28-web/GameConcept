@@ -517,6 +517,7 @@ export default function ruins(game) {
     id: 'ruins', name: '墨家旧坊', sub: '北山 · 机关城遗址 · 黄昏', music: 'ruins', battleBg: 'ruins',
     grid: grid(F0),
     treeKind: 'pine',
+    bake: true,
     padFill: '.',
     env: {
       fog: '#7a5a6c', skyTop: '#3a2c58', fogNear: 30, fogFar: 74,
@@ -630,10 +631,10 @@ export default function ruins(game) {
       add(A.fallenPuppet(7), 24.4, 32.0, { solid: [1.4, 0.7] });
       add(A.fallenPuppet(11, { split: true }), 32.3, 33.4, { solid: [1.8, 0.7] });
       // 水车、龙口、齿轮组
-      const ww = add(P.waterwheel(1.35), 32.5, 28.0, { rot: Math.PI / 2, y: -0.55 });
+      const ww = add(P.waterwheel(1.35), 32.5, 28.0, { rot: Math.PI / 2, y: -0.55, dynamic: true });
       add(A.waterSpout(1.7), 36.75, 28.0);
       const wallGears = [[30.9, 1.7, 0.62, 12, 1], [32.3, 2.15, 0.46, 9, -1.35], [33.5, 1.55, 0.36, 8, 1.72]].map(([x, y, r, n, sp]) => {
-        const gg = P.gear({ r, teeth: n, thick: 0.14 }); add(gg, x, 25.12, { y }); gg.userData.sp = sp; return gg;
+        const gg = P.gear({ r, teeth: n, thick: 0.14 }); add(gg, x, 25.12, { y, dynamic: true }); gg.userData.sp = sp; return gg;
       });
       const belt = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.7, 0.06), P.MAT.darkWood()); belt.position.set(31.6, 1.0, 25.2); belt.rotation.z = -0.5; scene.add(belt);
       w.onUpdate((t, dt) => {
@@ -652,10 +653,9 @@ export default function ruins(game) {
       [[34.0, 36.2, 'c'], [35.0, 36.4, 'j'], [30.4, 36.6, 'j'], [3.8, 29.0, 'c'], [26.0, 36.6, 'c']].forEach(([x, z, k], i) => add(k === 'c' ? P.crate(0.55 + (i % 2) * 0.1) : P.jar(1.1, '#5a4a3a'), x, z, { solid: [0.6, 0.6] }));
       add(P.tree({ kind: 'pine', seed: 41, scale: 1.15 }), 4.4, 36.0, { solid: [0.6, 0.6], fade: true });
       add(P.tree({ kind: 'pine', seed: 43, scale: 1.0 }), 35.3, 31.0, { solid: [0.6, 0.6], fade: true });
-      add(P.tree({ kind: 'peach', seed: 44, scale: 0.9 }), 13.8, 36.6, { solid: [0.6, 0.6], fade: true });
 
       // ===== 中庭 · 五行机关门 =====
-      R.gate = add(A.wuxingGate(), 20, 18.5, { fade: true });
+      R.gate = add(A.wuxingGate(), 20, 18.5, { fade: true, dynamic: true });
       if (F.ruinsGateOpen) R.gate.userData.door.position.y = -3.4;
       PED.forEach(([x, z], i) => {
         const p = add(A.pedestal(i), x, z, { solid: [0.95, 0.95] });
@@ -707,21 +707,21 @@ export default function ruins(game) {
       scene.add(A.lilyPads(14, [23.6, 13.2, 29.8, 17.6], 9));
       // 铜甲傀儡 / 残骸
       R.guard = A.spriteOf('puppetBronze', { scale: 1.25, glow: 0.35 });
-      add(R.guard, GUARD_POS[0], GUARD_POS[1]);
+      add(R.guard, GUARD_POS[0], GUARD_POS[1], { dynamic: true });
       const blob = new THREE.Mesh(new THREE.CircleGeometry(0.8, 16), new THREE.MeshBasicMaterial({ color: '#000', transparent: true, opacity: 0.35, depthWrite: false }));
       blob.rotation.x = -Math.PI / 2; blob.scale.y = 0.5; blob.position.y = 0.02; R.guard.add(blob);
       R.wreck = A.spriteOf('puppetBronze', { scale: 1.1, glow: 0.0, color: '#8a8a80' });
       R.wreck.userData.mesh.rotation.set(-0.55, 0, 0.35);
       R.wreck.userData.mesh.position.y = -0.4;
-      add(R.wreck, WRECK_POS[0], WRECK_POS[1]);
+      add(R.wreck, WRECK_POS[0], WRECK_POS[1], { dynamic: true });
       if (F.ruinsGuardDone) { R.guard.visible = false; R.wreckSolid = w.solidRect(WRECK_POS[0] - 0.8, WRECK_POS[1] - 0.35, WRECK_POS[0] + 0.8, WRECK_POS[1] + 0.35); }
       else { R.wreck.visible = false; R.guardSolid = w.solidRect(GUARD_POS[0] - 0.8, GUARD_POS[1] - 0.4, GUARD_POS[0] + 0.8, GUARD_POS[1] + 0.4); }
       // 鼎室水闸
-      R.sluice = add(A.sluiceGate(), 20, 12.5, { fade: true });
+      R.sluice = add(A.sluiceGate(), 20, 12.5, { fade: true, dynamic: true });
       if (F.ruinsSluiceOpen) { R.sluice.userData.bars.position.y = 2.7; R.sluice.userData.lock.rotation.z = -Math.PI; }
 
       // ===== 鼎室 =====
-      R.ding = add(P.ding({ s: 2.3, glow: true }), 20, 6.2, { solid: [3.0, 2.6] });
+      R.ding = add(P.ding({ s: 2.3, glow: true }), 20, 6.2, { solid: [3.0, 2.6], dynamic: true });
       R.seal = add(A.floorSeal(3.3), 20, 6.2);
       add(P.brazier(), 14.6, 4.4, { solid: [0.6, 0.6] });
       add(P.brazier(), 25.4, 4.4, { solid: [0.6, 0.6] });
@@ -736,7 +736,7 @@ export default function ruins(game) {
       R.taotie = A.spriteOf('taotie', { scale: 1.0, glow: 1.6, color: '#c8a8e8' });
       R.taotie.userData.mat.transparent = true; R.taotie.userData.mat.alphaTest = 0.02; R.taotie.userData.mat.opacity = 0; R.taotie.userData.mat.depthWrite = false;
       R.taotie.visible = false;
-      add(R.taotie, 20, 5.9, { y: 0.8 });
+      add(R.taotie, 20, 5.9, { y: 0.8, dynamic: true });
       // 指路的青光
       R.beam = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 9), new THREE.MeshBasicMaterial({ color: '#8affe0', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
       R.beam.rotation.x = -Math.PI / 2; R.beam.visible = false; scene.add(R.beam);

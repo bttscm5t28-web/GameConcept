@@ -85,8 +85,8 @@ export function fallenPuppet(seed = 1, { split = false } = {}) {
   if (split) {
     const L = spriteOf('puppet', { scale: 0.95, glow: 0.0, half: 'L', color: tint });
     const R = spriteOf('puppet', { scale: 0.95, glow: 0.0, half: 'R', color: tint });
-    L.position.set(-0.55, 0.02, 0); L.rotation.set(-1.25, 0, 0.32);
-    R.position.set(0.6, 0.02, 0.15); R.rotation.set(-1.3, 0, -0.42);
+    L.position.set(-0.55, 0.04, 0); L.rotation.set(-1.45, 0, 0.32);
+    R.position.set(0.6, 0.04, 0.15); R.rotation.set(-1.5, 0, -0.42);
     g.add(L, R);
     // 切口处的焦痕
     const scar = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 1.6), new THREE.MeshBasicMaterial({ color: '#2a1828', transparent: true, opacity: 0.65, depthWrite: false }));
@@ -94,8 +94,8 @@ export function fallenPuppet(seed = 1, { split = false } = {}) {
     g.add(scar);
   } else {
     const s = spriteOf('puppet', { scale: 0.95, glow: 0.0, color: tint });
-    s.rotation.set(-0.9 - r() * 0.35, 0, (r() - 0.5) * 0.8);
-    s.position.y = 0.02;
+    s.rotation.set(-1.4 - r() * 0.12, 0, (r() - 0.5) * 0.8);
+    s.position.y = 0.05;
     g.add(s);
   }
   for (let i = 0; i < 5; i++) {
