@@ -213,16 +213,29 @@ export class World {
     }
   }
 
+  openNorthDist(x, z, max = 9) {
+    for (let k = 1; k <= max; k++) for (let dx = -1; dx <= 1; dx++) {
+      const c = this.cell(x + dx, z - k);
+      if (c && TYPES[c]?.walk) return k;
+    }
+    return 0;
+  }
+
   buildBamboo(cells) {
     const stalks = [], leaves = [];
     for (const [x, z] of cells) {
       const n = 2 + Math.floor(hash2(x, z, 21) * 2);
       for (let i = 0; i < n; i++) {
         const sx = x + 0.15 + hash2(x, z, 30 + i) * 0.7, sz = z + 0.15 + hash2(x, z, 40 + i) * 0.7;
-        const h = 6 + hash2(x, z, 50 + i) * 5;
+        let h = 6 + hash2(x, z, 50 + i) * 5;
+        // 竹高衰减：北侧若干格内有可走地面时，竹子会挡住镜头视线，按距离压低
+        const k = this.openNorthDist(x, z);
+        if (k) h = Math.min(h, 0.6 + k * 0.62 + hash2(x, z, 55 + i) * 0.5);
         const lean = (hash2(x, z, 60 + i) - 0.5) * 0.12;
         stalks.push([sx, sz, h, lean]);
-        for (let k = 0; k < 3; k++) leaves.push([sx + lean * h * (0.6 + k * 0.15) + (hash2(x, z, 70 + i * 3 + k) - 0.5) * 1.0, h * (0.5 + k * 0.2), sz + (hash2(x, z, 80 + k) - 0.5) * 0.6, hash2(x, z, 90 + i + k)]);
+        const ls = Math.max(0.35, Math.min(1, h / 6.5));
+        const nl = h < 3 ? 1 : h < 5 ? 2 : 3;
+        for (let k = 0; k < nl; k++) leaves.push([sx + lean * h * (0.6 + k * 0.15) + (hash2(x, z, 70 + i * 3 + k) - 0.5) * 1.0 * ls, h * (0.62 + k * 0.17), sz + (hash2(x, z, 80 + k) - 0.5) * 0.6, hash2(x, z, 90 + i + k), ls]);
       }
     }
     const sGeo = new THREE.CylinderGeometry(0.06, 0.075, 1, 6); sGeo.translate(0, 0.5, 0);
@@ -242,9 +255,9 @@ export class World {
     lMats.forEach((mat, mi) => {
       const sub = leaves.filter((_, i) => i % 2 === mi);
       const li = new THREE.InstancedMesh(lGeo, mat, sub.length);
-      sub.forEach(([x, y, z, r], i) => {
+      sub.forEach(([x, y, z, r, ls], i) => {
         e.set(0, (r - 0.5) * 0.8, (r - 0.5) * 2); q.setFromEuler(e);
-        const s = 0.8 + r * 0.6;
+        const s = (0.8 + r * 0.6) * ls;
         m4.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(s, s, s));
         li.setMatrixAt(i, m4);
       });

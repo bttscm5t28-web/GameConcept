@@ -7,7 +7,7 @@ export const shared = {
   time: { value: 0 },
   uPlayer: { value: new THREE.Vector3() },
   uCamDir: { value: new THREE.Vector3(0, 0.53, 0.85) },
-  uFadeR: { value: 1.5 },
+  uFadeR: { value: 2.1 },
 };
 
 // 角色与镜头之间的遮挡物做网点式淡出（HD-2D 常见处理）

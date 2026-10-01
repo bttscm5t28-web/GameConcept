@@ -14,7 +14,7 @@ const ANSWER = [0, 2, 1];  // 金 水 木 —— 金生水，水生木，木生�
 const PED = [[14.6, 21.0], [20, 21.7], [25.4, 21.0]];
 const GUARD_POS = [20, 13.0];
 const WRECK_POS = [21.6, 13.9];
-const SHISHU_POS = [22.9, 6.9];
+const SHISHU_POS = [23.4, 7.1];
 const DING = [20, 5.3];
 
 const raf = () => new Promise((r) => requestAnimationFrame(r));
@@ -286,9 +286,9 @@ export default function ruins(game) {
     await ctx.say('moheng', '……师叔？');
     await ctx.emote('player', '！', 600);
     await ctx.say('moheng', '师叔——！');
-    ctx.walk('wuyue', 21.3, 8.9, 4.2);
-    await ctx.walk('player', SHISHU_POS[0], SHISHU_POS[1] + 1.25, 5);
-    ctx.face('player', 'up');
+    ctx.walk('wuyue', 21.0, 8.6, 4.2);
+    await ctx.walkPath('player', [[21.9, 8.4], [22.1, 7.4]], 5);
+    ctx.face('player', 'right');
     await ctx.wait(400);
     sh.pose = 'hurt';
     await ctx.say('shishu', '……咳……衡儿？');
@@ -756,7 +756,7 @@ export default function ruins(game) {
         const k = 0.75 + wave * 0.35 + R.dingPulse * 1.5;
         dingLight.color.copy(cur); dingLight.intensity = inten * k;
         dingHalo.material.color.copy(cur); dingHalo.material.opacity = 0.32 * k;
-        R.ding.userData.glow.material.color.copy(cur).multiplyScalar(0.7 + wave * 0.5);
+        R.ding.userData.glow.material.color.copy(cur).multiplyScalar(0.42 + wave * 0.3 + R.dingPulse * 0.4);
         R.seal.userData.mat.color.copy(cur); R.seal.userData.mat.opacity = 0.14 + 0.12 * k;
         R.seal.rotation.y = t * 0.05;
         if (R.taotie.visible) {

@@ -258,22 +258,22 @@ export function sluiceGate() {
   const g = new THREE.Group();
   const st = stoneMat();
   for (const sx of [-2.3, 2.3]) {
-    g.add(box(0.6, 2.5, 0.8, st, sx, 1.25, 0));
-    const lamp = new THREE.Mesh(new THREE.OctahedronGeometry(0.15, 0), MAT.bronze()); lamp.position.set(sx, 2.66, 0); g.add(lamp);
+    g.add(box(0.6, 1.9, 0.8, st, sx, 0.95, 0));
+    g.add(box(0.75, 0.16, 0.95, st, sx, 1.96, 0));
+    const lamp = new THREE.Mesh(new THREE.OctahedronGeometry(0.15, 0), MAT.bronze()); lamp.position.set(sx, 2.2, 0); g.add(lamp);
   }
-  g.add(box(4.2, 0.3, 0.6, st, 0, 2.42, 0));
-  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.26), new THREE.MeshLambertMaterial({ map: T.glyphTex('鼎室', { w: 48, h: 12, bg: '#2a1a1a', fg: '#e2b84e', font: 'bold 11px serif', border: '#8a6a3a', pixel: false }) }));
-  plaque.position.set(0, 2.42, 0.31); g.add(plaque);
   const bars = new THREE.Group();
   const br = MAT.bronze();
-  for (let i = 0; i < 9; i++) bars.add(box(0.12, 2.2, 0.12, br, -1.8 + i * 0.45, 1.1, 0));
-  for (const y of [0.35, 1.15, 1.95]) bars.add(box(4.0, 0.12, 0.14, br, 0, y, 0));
+  for (let i = 0; i < 9; i++) bars.add(box(0.12, 1.9, 0.12, br, -1.8 + i * 0.45, 0.95, 0));
+  for (const y of [0.3, 1.0, 1.75]) bars.add(box(4.0, 0.12, 0.14, br, 0, y, 0));
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.24), new THREE.MeshLambertMaterial({ map: T.glyphTex('鼎室', { w: 48, h: 12, bg: '#2a1a1a', fg: '#e2b84e', font: 'bold 11px serif', border: '#8a6a3a', pixel: false }) }));
+  plaque.position.set(0, 1.75, 0.09); bars.add(plaque);
   // 「坎」字锁盘
   const lock = new THREE.Group();
-  const lg = P.gear({ r: 0.32, teeth: 8, thick: 0.1 }); lock.add(lg);
-  const lm = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.36), new THREE.MeshBasicMaterial({ map: glyph('坎', '#7ac8ff'), transparent: true, depthWrite: false, toneMapped: false }));
+  const lg = P.gear({ r: 0.3, teeth: 8, thick: 0.1 }); lock.add(lg);
+  const lm = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), new THREE.MeshBasicMaterial({ map: glyph('坎', '#7ac8ff'), transparent: true, depthWrite: false, toneMapped: false }));
   lm.position.z = 0.07; lock.add(lm);
-  lock.position.set(0, 1.15, 0.14);
+  lock.position.set(0, 1.0, 0.14);
   bars.add(lock);
   g.add(bars);
   g.userData.bars = bars; g.userData.lock = lg;
