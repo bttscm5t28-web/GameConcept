@@ -209,7 +209,7 @@ export default function town(game) {
           }
         } });
       // 阿柱（北门）
-      if (!f.azhuMoved) list.push({ id: 'azhu', look: 'azhu', x: 32, z: 6.2, dir: 'down', keepFace: true,
+      list.push({ id: 'azhu', look: 'azhu', x: f.azhuStep ? 30.2 : 32, z: f.azhuStep ? 6.4 : 6.2, dir: f.azhuStep ? 'right' : 'down', keepFace: true,
         marker: (gg) => (gg.state.flags.teaQuest === 'carry' ? 'side' : null),
         talk: async (ctx) => {
           if (ctx.flags.teaQuest === 'carry') {
@@ -219,6 +219,11 @@ export default function town(game) {
             await ctx.say('azhu', '……真香。阿衡，这个你拿着——我爷爷那辈从山里捡的铜镜，说能挡煞。我一个砍柴的，用不上。');
             ctx.give('tongjing', 1);
             ctx.flags.teaQuest = 'done';
+          }
+          if (ctx.flags.azhuStep) {
+            if (ctx.flags.sunRescued) await ctx.say('azhu', '老孙让你给救回来了？好小子！他媳妇在家给你供了三炷香呢，哈哈！');
+            else await ctx.say('azhu', '路上小心！要是碰见老孙，叫他赶紧回家。');
+            return;
           }
           if (!ctx.flags.chenboBlessing) {
             await ctx.say('azhu', '竹海这几天邪乎得很，前天老孙进去砍柴，到现在还没回来。');
@@ -235,10 +240,6 @@ export default function town(game) {
             }
           }
         } });
-      else list.push({ id: 'azhu', look: 'azhu', x: 30.2, z: 6.4, dir: 'right', talk: async (ctx) => {
-        if (ctx.flags.sunRescued) await ctx.say('azhu', '老孙让你给救回来了？好小子！他媳妇在家给你供了三炷香呢，哈哈！');
-        else await ctx.say('azhu', '路上小心！');
-      } });
       // 货郎
       list.push({ id: 'huolang', look: 'huolang', x: 22.5, z: 15, dir: 'down',
         talk: async (ctx) => {
