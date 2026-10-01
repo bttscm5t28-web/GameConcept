@@ -25,6 +25,6 @@ chars = ''.join(sorted(c for c in chars if c.isprintable()))
 txt = os.path.join(CACHE, 'chars.txt'); open(txt, 'w', encoding='utf-8').write(chars)
 out = os.path.join(ROOT, 'public', 'fonts'); os.makedirs(out, exist_ok=True)
 for src, dst in [('kai.ttf', 'kai.woff2'), ('serif400.ttf', 'serif.woff2'), ('serif700.ttf', 'serif-bold.woff2')]:
-    subprocess.check_call(['pyftsubset', os.path.join(CACHE, src), f'--text-file={txt}', '--flavor=woff2', f'--output-file={os.path.join(out, dst)}', '--layout-features=*', '--no-hinting'])
+    subprocess.check_call(['pyftsubset', os.path.join(CACHE, src), f'--text-file={txt}', '--flavor=woff2', f'--output-file={os.path.join(out, dst)}', '--layout-features=vert,vrt2,kern,ccmp,locl', '--no-hinting'])
     print(dst, os.path.getsize(os.path.join(out, dst)) // 1024, 'KB')
 print('字符数', len(chars))

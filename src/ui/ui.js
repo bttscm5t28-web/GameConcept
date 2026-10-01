@@ -280,6 +280,10 @@ export class UI {
       const cols = el('div', 'cols');
       lines.forEach((l) => { const p = el('p', l.startsWith('!') ? 'red' : '', l.replace(/^!/, '')); cols.appendChild(p); });
       wrap.appendChild(cols); wrap.appendChild(el('div', 'skip', '按 确认键 继续'));
+      // 每行竖排一列不折行：按最长一行自动缩放字号
+      const maxLen = Math.max(...lines.map((l) => [...l.replace(/^!/, '')].length));
+      const fs = Math.max(16, Math.min(34, (window.innerHeight * 0.8) / (maxLen * 1.2)));
+      cols.style.fontSize = fs + 'px'; cols.style.letterSpacing = fs * 0.18 + 'px';
       this.layer.appendChild(wrap);
       const ps = [...cols.children];
       let i = 0, timer = 0.4;
