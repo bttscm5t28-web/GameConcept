@@ -35,11 +35,30 @@ export function buildStage(theme) {
   const m4 = new THREE.Matrix4();
   for (let v = 0; v < 3; v++) {
     const cells = [];
-    for (let x = -16; x < 16; x++) for (let z = -12; z < 8; z++) if (Math.floor(hash2(x, z, 5) * 3) === v) cells.push([x, z]);
+    for (let x = -16; x < 16; x++) for (let z = -12; z < 8; z++) {
+      const path = th.tile === 'grass' && Math.abs(z - Math.sin(x * 0.35) * 1.2) < 1.1 + hash2(x, z, 2) * 0.6;
+      if (path) continue;
+      if (Math.floor(hash2(x, z, 5) * 3) === v) cells.push([x, z]);
+    }
     const im = new THREE.InstancedMesh(geo, [side, side, tops[v], side, side, side], cells.length);
     cells.forEach(([x, z], i) => { m4.makeTranslation(x + 0.5, -0.5, z + 0.5); im.setMatrixAt(i, m4); });
     im.receiveShadow = true;
     scene.add(im);
+  }
+  // 土路
+  if (th.tile === 'grass') {
+    const cells = [];
+    for (let x = -16; x < 16; x++) for (let z = -12; z < 8; z++) if (Math.abs(z - Math.sin(x * 0.35) * 1.2) < 1.1 + hash2(x, z, 2) * 0.6) cells.push([x, z]);
+    const dm = new THREE.MeshLambertMaterial({ map: T.dirtTex(0) });
+    const im = new THREE.InstancedMesh(geo, [side, side, dm, side, side, side], cells.length);
+    cells.forEach(([x, z], i) => { m4.makeTranslation(x + 0.5, -0.5, z + 0.5); im.setMatrixAt(i, m4); });
+    im.receiveShadow = true; scene.add(im);
+  }
+  // 岩石点缀
+  for (let i = 0; i < 9; i++) {
+    const r = P.rock({ s: 0.5 + hash2(i, 4, 9) * 0.9, seed: i + 11, mossy: theme !== 'boss' });
+    r.position.set((hash2(i, 5, 9) - 0.5) * 24, 0, -9 + hash2(i, 6, 9) * 6);
+    scene.add(r);
   }
   // 草丛
   if (th.tile === 'grass') {
