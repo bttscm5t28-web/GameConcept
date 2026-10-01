@@ -125,6 +125,13 @@ export default function town(game) {
             await ctx.say('chenbo', '北门的阿柱那边，我已经打过招呼了。早去早回。');
             ctx.flags.chenboBlessing = true;
             ctx.objective('从北边牌坊出发，穿过竹海前往墨家旧坊');
+          } else if (withYue(ctx) && !ctx.flags.yueChenbo) {
+            ctx.flags.yueChenbo = true;
+            await ctx.say('chenbo', '这位是……南疆来的姑娘？');
+            await ctx.say('wuyue', '巫族，巫月。老人家不必拘礼。');
+            await ctx.say('chenbo', '巫族……二十年前，阿衡他爹也曾说起过南疆的巫族，说那里的人能听懂山川的声音。');
+            await ctx.say('chenbo', '姑娘，阿衡这孩子心实，路上劳你多照看。');
+            await ctx.say('wuyue', '……嗯。我会的。');
           } else {
             const lines = ['路上饿了就吃干粮，别逞强。', '竹海的妖物怕金铁之声。你爹以前常这么说。', '早去早回啊，阿衡。'];
             await ctx.say('chenbo', lines[Math.floor(Math.random() * lines.length)]);
@@ -143,6 +150,15 @@ export default function town(game) {
         marker: (gg) => (gg.state.flags.gotShard && !gg.state.flags.teaQuest ? 'side' : null),
         talk: async (ctx) => {
           if (!ctx.flags.gotShard) { await ctx.say('liusao', '哟，阿衡，起这么早？昨夜河上那光你瞧见没？我家那口子说是河神显灵了。'); return; }
+          if (withYue(ctx) && !ctx.flags.yueLiusao) {
+            ctx.flags.yueLiusao = true;
+            await ctx.say('liusao', '哎呀！这不就是前天来喝茶的那位姑娘嘛！你们俩怎么凑一块儿了？');
+            await ctx.say('wuyue', '……路上捡的。他非要跟着我。');
+            await ctx.say('moheng', '明明是你说要盯着那块铜片——');
+            await ctx.say('liusao', '哈哈哈，好好好，嫂子懂，嫂子都懂。来，这两碗茶算嫂子请的！');
+            ctx.healAll(); ctx.sfx('heal');
+            return;
+          }
           if (!ctx.flags.teaQuest) {
             await ctx.say('liusao', '要去竹海？那你顺路帮嫂子个忙——');
             await ctx.say('liusao', '阿柱在北门守了一整夜，饭都没顾上吃。这壶桂花茶你帮我带给他，热乎着呢。');
@@ -160,6 +176,12 @@ export default function town(game) {
         marker: (gg) => { const q = gg.state.flags.birdQuest; return !q ? 'side' : (q === 'found' ? 'main' : null); },
         talk: async (ctx) => {
           const q = ctx.flags.birdQuest;
+          if (withYue(ctx) && !ctx.flags.yueDou) {
+            ctx.flags.yueDou = true;
+            await ctx.say('xiaodou', '哇……姐姐头上的银角角好漂亮！会叮叮响！');
+            await ctx.say('wuyue', '这叫银角，我们寨子里的姑娘长大了都要戴。……你喜欢的话，给你一个小铃铛。');
+            await ctx.emote('xiaodou', '♪', 900);
+          }
           if (!q) {
             await ctx.say('xiaodou', '呜呜……墨衡哥哥……');
             await ctx.say('moheng', '小豆？怎么哭鼻子了？');
@@ -251,6 +273,13 @@ export default function town(game) {
       // 算命先生
       list.push({ id: 'suanming', look: 'suanming', x: 25.6, z: 15.2, dir: 'left',
         talk: async (ctx) => {
+          if (withYue(ctx) && ctx.flags.fortune && !ctx.flags.yueFortune) {
+            ctx.flags.yueFortune = true;
+            await ctx.say('suanming', '哈！老夫说什么来着？北行遇贵人，女子，叮当作响——一字不差！');
+            await ctx.say('wuyue', '……你这算命的，是不是在我进渡口那天就瞧见我了？');
+            await ctx.say('suanming', '咳咳，天机，天机不可泄露。');
+            return;
+          }
           if (!ctx.flags.fortune) {
             await ctx.say('suanming', '这位小哥，留步！老夫观你印堂之上隐有青光，乃是……乃是大吉大凶之兆啊！');
             const c = await ctx.ask('moheng', '（大吉大凶？）', ['请先生细说（10 文）', '不必了']);
@@ -337,6 +366,8 @@ export default function town(game) {
     },
   };
 }
+
+const withYue = (ctx) => ctx.state.party.includes('wuyue');
 
 async function shardScene(ctx) {
   await ctx.say('laozhou', '阿衡！你可算来了！快瞧瞧这玩意儿——');
