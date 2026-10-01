@@ -109,7 +109,16 @@ export class World {
     for (const a of [this.player, this.follower, ...this.npcs]) if (a) a.glowBase = this.spriteLift;
     this.player.setPos(spawn.x, spawn.z, this.heightAt(spawn.x, spawn.z));
     this.player.face(spawn.dir || 'down');
-    if (this.follower) { this.follower.setPos(spawn.x, spawn.z + 0.01); this.follower.face(spawn.dir || 'down'); }
+    if (this.follower) {
+      // 同伴站在主角身后（与朝向相反的一侧）
+      const d = spawn.dir || 'down';
+      const [bx, bz] = d === 'up' ? [0, 0.8] : d === 'down' ? [0, -0.8] : d === 'left' ? [0.8, 0] : [-0.8, 0];
+      const fx = spawn.x + bx, fz = spawn.z + bz;
+      const ok = !this.blocked(fx, fz, 0.2);
+      this.follower.setPos(ok ? fx : spawn.x, ok ? fz : spawn.z + 0.01);
+      this.follower.face(d);
+      this.resetTrail();
+    }
     this.camTarget.set(spawn.x, 0.8, spawn.z);
     this.clampCam(this.camTarget);
     this.updateCamera(0, true);
