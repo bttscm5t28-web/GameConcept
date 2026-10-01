@@ -147,10 +147,11 @@ export class Battle {
       const p = this.screen(new THREE.Vector3(e.group.position.x, e.group.position.y - 0.15, e.group.position.z));
       d.style.left = p.x + 'px'; d.style.top = p.y + 'px';
       const wk = e.weak.map((w) => `<span class="${e.revealed.has(w) ? 'r ' + w : ''}">${e.revealed.has(w) ? ICON[w] : '？'}</span>`).join('');
-      const key = `${e.shield}|${e.broken}|${wk}|${e.hp}|${e.charging}`;
+      const bf = Object.entries(e.buffs).map(([k, b]) => `<span style="color:${b.amt > 0 ? '#ff9a6a' : '#8fd0ff'}">${{ def: '防', atk: '攻', spd: '速', res: '抗' }[k]}${b.amt > 0 ? '↑' : '↓'}</span>`).join('');
+      const key = `${e.shield}|${e.broken}|${wk}|${e.hp}|${e.charging}|${bf}`;
       if (d._k === key) return;
       d._k = key;
-      d.innerHTML = `<div class="top"><div class="sh ${e.broken ? 'brk' : ''}">${e.broken ? '破' : e.shield}</div><div><div class="nm">${e.name}</div><div class="hpb"><i style="transform:scaleX(${e.hp / e.maxhp})"></i></div></div></div><div class="wk">${wk}</div>${e.charging ? '<div class="charge">蓄力中…</div>' : ''}`;
+      d.innerHTML = `<div class="top"><div class="sh ${e.broken ? 'brk' : ''}">${e.broken ? '破' : e.shield}</div><div><div class="nm">${e.name}</div><div class="hpb"><i style="transform:scaleX(${e.hp / e.maxhp})"></i></div></div></div><div class="wk">${wk}</div>${bf ? `<div class="nm">${bf}</div>` : ''}${e.charging ? '<div class="charge">蓄力中…</div>' : ''}`;
     });
   }
 

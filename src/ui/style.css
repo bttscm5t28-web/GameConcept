@@ -189,3 +189,6 @@ canvas { display: block; }
 #battle .result .line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 16px; border-bottom: 1px dashed rgba(201,162,74,.2); }
 #battle .result .lv { color: #ffd34a; }
 #battle .result .opt { text-align: center; }
+
+/* 通用小标签 */
+.tag { display: inline-block; font-family: var(--kai); font-size: 13px; line-height: 1.4; padding: 0 5px; margin-left: 8px; border-radius: 2px; background: #3a4a5a; color: #e8dcc0; vertical-align: 2px; }
