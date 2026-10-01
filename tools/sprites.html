@@ -1,0 +1,10 @@
+<!doctype html><html><body style="background:#8a9a8a;margin:0">
+<div id="out" style="display:flex;flex-wrap:wrap;gap:8px;padding:8px"></div>
+<script type="module">
+import { buildHumanSheet, LOOKS } from '../src/art/characters.js';
+import { buildMonster, MONSTERS } from '../src/art/monsters.js';
+const out = document.getElementById('out');
+for (const k of Object.keys(LOOKS)) { const s = buildHumanSheet(k); s.canvas.style.cssText='width:'+s.canvas.width*3+'px;image-rendering:pixelated'; out.appendChild(s.canvas); }
+if (MONSTERS) for (const k of Object.keys(MONSTERS)) { const m = buildMonster(k); m.canvas.style.cssText='width:'+m.canvas.width*3+'px;image-rendering:pixelated;background:#556'; out.appendChild(m.canvas); }
+window.done = true;
+</script></body></html>
