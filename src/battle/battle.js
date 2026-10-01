@@ -275,6 +275,7 @@ export class Battle {
           const act = await this.playerTurn(u);
           this.active = null;
           await this.doPlayerAction(u, act);
+          for (const e of this.enemies) if (e.pendingPhase2 && !e.ko) { e.pendingPhase2 = false; await this.bossPhase2(e); }
         } else {
           await this.enemyTurn(u);
         }
@@ -494,6 +495,8 @@ export class Battle {
     if (e.broken) { dmg *= 2; cls = 'big'; }
     dmg = Math.round(dmg);
     e.hp = Math.max(0, e.hp - dmg);
+    // Boss 一阶段血量锁在一半，保证进入二阶段
+    if (e.boss && e.phase === 1 && e.hp < e.maxhp * 0.5) { e.hp = Math.ceil(e.maxhp * 0.5); e.pendingPhase2 = true; }
     e.flashT = 0.18;
     this.pop(e, dmg, cls);
     if (weakHits.length && !e.broken && e.shield > 0) {
@@ -623,13 +626,20 @@ export class Battle {
     if (!alive.length) return;
     // Boss：蓄力 → 饕餮吞天
     if (e.boss) {
+      if (e.charging && this.round === e.lastChargeRound) {
+        this.msg('饕餮之影仍在吞纳灵气……', 1400);
+        await this.anim(0.8, () => this.vfx.preset('charge', this.center(e)));
+        return;
+      }
       if (e.charging) {
         e.charging = false;
         this.msg('饕餮之影「饕餮吞天」', 1800);
         await ENEMY_FX.swallow(fx, e, alive, (t) => this.damageParty(t, this.calc(e, t, { kind: 'mag', power: 2.3 }, 1)));
         return;
       }
-      if (e.turnCount % 4 === 3) {
+      const cadence = e.phase === 2 ? 3 : 4;
+      if (this.round % cadence === cadence - 1 && e.lastChargeRound !== this.round) {
+        e.lastChargeRound = this.round;
         e.charging = true;
         this.msg('饕餮之影张开巨口，开始吞纳天地灵气……', 2200);
         g.audio.sfxPlay('roar');
@@ -661,8 +671,7 @@ export class Battle {
       await ENEMY_FX.buffself(fx, e, [], () => { e.buffs.atk = { amt: 0.35, turns: 3 }; this.pop(e, '攻击提升', 'small'); });
     }
     this.renderParty();
-    // Boss 二阶段
-    if (e.boss && e.phase === 1 && e.hp <= e.maxhp * 0.5 && !e.ko) await this.bossPhase2(e);
+    if (e.pendingPhase2 && !e.ko) { e.pendingPhase2 = false; await this.bossPhase2(e); }
   }
 
   async bossPhase2(e) {

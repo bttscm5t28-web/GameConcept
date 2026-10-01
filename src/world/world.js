@@ -156,7 +156,7 @@ export class World {
     const geo = new THREE.BoxGeometry(1, 1, 1);
     const m4 = new THREE.Matrix4();
     for (const [key, { t, v, list }] of groups) {
-      const bottom = t.bottom ?? (t.h - 1.2);
+      const bottom = t.bottom ?? Math.min(t.h - 1.2, -1.2);
       const hgt = t.h - bottom;
       const top = new THREE.MeshLambertMaterial({ map: topTex(t.top, v) });
       let sideTex;

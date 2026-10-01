@@ -488,7 +488,7 @@ export default function ruins(game) {
     const hp = ctx.spawn({ id: 'heipao', look: 'heipao', x: 34.5, z: 2.6, dir: 'down' });
     hp.y = 3.4; hp.sync();
     ctx.flags.noEncounter = true;
-    await ctx.pan(31.5, 6.2, 0.01);
+    await ctx.pan(32.5, 4.4, 0.01);
     await ctx.wait(300);
     await ctx.fadeIn(1200);
     await ctx.narr('山巅之上，夜风猎猎。');
