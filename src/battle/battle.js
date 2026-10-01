@@ -62,7 +62,7 @@ export class Battle {
     const w = sp.w * EPX * d.scale, hgt = sp.h * EPX * d.scale;
     const geo = new THREE.PlaneGeometry(w, hgt); geo.translate(0, hgt / 2, 0);
     const nrm = geo.attributes.normal; for (let i = 0; i < nrm.count; i++) nrm.setXYZ(i, 0, 0.55, 0.835);
-    const mat = new THREE.MeshLambertMaterial({ map: sp.texture, alphaTest: 0.5, side: THREE.DoubleSide, emissive: new THREE.Color(1, 1, 1), emissiveMap: sp.glow, emissiveIntensity: sp.glowAll ? 0.9 : 1.3 });
+    const mat = new THREE.MeshLambertMaterial({ map: sp.texture, alphaTest: 0.5, side: THREE.DoubleSide, emissive: new THREE.Color(1, 1, 1), emissiveMap: sp.glow, emissiveIntensity: sp.glowAll ? 0.38 : 1.3 });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
     mesh.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: sp.texture, alphaTest: 0.5 });
@@ -215,7 +215,7 @@ export class Battle {
       e.mesh.scale.set(s * (1 + Math.sin(e.bob * 2.4) * 0.015), s * (1 - Math.sin(e.bob * 2.4) * 0.015), 1);
       e.mesh.rotation.z = e.twist || 0;
       if (e.flashT > 0) { e.flashT -= dt; e.mat.emissiveMap = e.sp.texture; e.mat.emissiveIntensity = Math.max(0, e.flashT * 6); }
-      else { e.mat.emissiveMap = e.sp.glow; e.mat.emissiveIntensity = e.broken ? 0.4 : (e.sp.glowAll ? 0.9 : 1.3); }
+      else { e.mat.emissiveMap = e.sp.glow; e.mat.emissiveIntensity = e.broken ? 0.4 : (e.sp.glowAll ? 0.38 : 1.3); }
       if ((e.boss || e.miniboss) && !e.broken && Math.random() < dt * (e.boss ? 14 : 6)) {
         const c = this.center(e);
         this.smoke.emit({ x: c.x + (Math.random() - 0.5) * e.w * 0.8, y: e.group.position.y + 0.2, z: c.z - 0.2 }, 1, { color: e.boss ? '#7a3aa0' : '#a05a3a', color2: e.boss ? '#2a0a3a' : '#3a1a10', speed: 0.2, up: 1.2, life: 1.6, size: e.boss ? 0.7 : 0.4, drag: 0.4 });

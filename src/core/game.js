@@ -285,9 +285,15 @@ export class Game {
         this.audio.init();
         const k = items[r.pick].k;
         if (k === 'help') {
-          this.ui.modal = null;
-          this.ui.say(null, '移动：方向键 / WASD（按住 Shift 疾行）\n确认/调查：空格 / 回车 / Z\n菜单：Esc / M\n战斗中：←→ 或 Q/E 调整「蓄气」', { narr: true }).then(() => { this.ui.modal = { update: (i) => this.ui.modalTitle(i) }; });
-          this.ui.modalTitle = (i) => { const rr = nav.update(i, this.audio); if (rr) { this.ui.modal = null; this.startFrom(items[rr.pick].k, box, nav, items); } };
+          const help = el('div', 'tip');
+          help.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,92vw);background:linear-gradient(180deg,#f3e8cf,#e0cfaa);color:#2a1f16;padding:20px 28px;border:2px solid #8a6a2a;box-shadow:0 0 0 4px rgba(18,14,10,.5),0 12px 40px rgba(0,0,0,.6);font-size:16px;line-height:2';
+          help.innerHTML = `<h4 style="margin:0 0 8px;font-family:var(--kai);font-size:28px;color:#b8322a;font-weight:normal;letter-spacing:4px">操作说明</h4>
+            移动：方向键 / WASD（按住 Shift 疾行）<br>确认 / 调查 / 对话：空格 / 回车 / Z<br>返回：Esc / X　　行囊菜单：Esc / M<br>
+            战斗：←→ 或 Q / E 调整「蓄气」，击中弱点打出「破绽」<br>触屏设备：左下虚拟摇杆，右下按键<div style="text-align:right;font-size:13px;color:#8a6a2a">— 按任意键返回 —</div>`;
+          box.appendChild(help);
+          const prev = this.ui.modal;
+          this.ui.modal = { update: (i) => { if (i.consume('confirm') || i.consume('cancel')) { help.remove(); this.ui.modal = prev; this.audio.sfxPlay('cancel'); } } };
+          help.addEventListener('click', () => this.input.press('confirm'));
           return;
         }
         this.ui.modal = null;
@@ -296,7 +302,6 @@ export class Game {
     };
   }
   async startFrom(k, box) {
-    if (k === 'help') { this.toTitle(); return; }
     this.titleUpdate = null;
     this.audio.sfxPlay('confirm');
     await this.ui.ink(true, 1.0);
