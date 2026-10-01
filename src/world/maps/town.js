@@ -33,6 +33,8 @@ export default function town(game) {
   game.registerSpeaker('shusheng', '书生', 'shusheng');
   game.registerSpeaker('suanming', '算命先生', 'suanming');
   game.registerSpeaker('chuanfu', '船夫', 'chuanfu');
+  game.registerSpeaker('laosun', '老孙', 'laosun');
+  game.registerSpeaker('sunsao', '孙嫂', 'villagerA');
   return {
     id: 'town', bake: true, name: '洛水渡', sub: '洛水之畔 · 晨', music: 'town', battleBg: 'town',
     grid: grid(),
@@ -233,7 +235,10 @@ export default function town(game) {
             }
           }
         } });
-      else list.push({ id: 'azhu', look: 'azhu', x: 30.2, z: 6.4, dir: 'right', talk: async (ctx) => { await ctx.say('azhu', '路上小心！'); } });
+      else list.push({ id: 'azhu', look: 'azhu', x: 30.2, z: 6.4, dir: 'right', talk: async (ctx) => {
+        if (ctx.flags.sunRescued) await ctx.say('azhu', '老孙让你给救回来了？好小子！他媳妇在家给你供了三炷香呢，哈哈！');
+        else await ctx.say('azhu', '路上小心！');
+      } });
       // 货郎
       list.push({ id: 'huolang', look: 'huolang', x: 22.5, z: 15, dir: 'down',
         talk: async (ctx) => {
@@ -303,6 +308,23 @@ export default function town(game) {
           await ctx.say('chuanfu', '过河？今儿可不开船。昨夜那道光把河底的鱼都惊得往上蹦，水流也怪得很，船一下水就打转。');
           if (ctx.flags.gotShard) await ctx.say('chuanfu', '你手里那东西……靠近它，我这船桨上的铜箍都在发烫。阿衡，你可得当心些。');
         } });
+      // 老孙（竹海获救后回家）
+      if (f.sunRescued) {
+        list.push({ id: 'laosun', look: 'laosun', x: 34.2, z: 18.6, dir: 'left',
+          talk: async (ctx) => {
+            if (!ctx.flags.sunHome) {
+              ctx.flags.sunHome = true;
+              await ctx.say('laosun', '阿衡！要不是你，我这把老骨头就喂了溪里的水鬼了。');
+              await ctx.say('sunsao', '恩人呐！这是自家腌的腊肉和干粮，你路上带着，可千万别嫌弃！');
+              ctx.give('herb', 2); ctx.give('dew', 1);
+              await ctx.say('laosun', '那黑袍人的事我跟里正说了，渡口这几天会多派人守夜。你在外头，自己当心。');
+            } else {
+              await ctx.say('laosun', '脚还肿着呢，这几天是进不了山喽。等你回来，我请你喝酒！');
+            }
+          } });
+        list.push({ id: 'sunsao', look: 'villagerA', x: 35.4, z: 18.8, dir: 'left',
+          talk: async (ctx) => { await ctx.say('sunsao', '他这人呐，嘴上说砍柴，其实是进山给我采灵芝。以后再也不让他一个人进去了。'); } });
+      }
       if (f.titleScreen) return [];
       return list;
     },
