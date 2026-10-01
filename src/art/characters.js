@@ -244,6 +244,8 @@ export function buildHumanSheet(look) {
   return { canvas: c, texture: pixelTex(c, { mip: false }), cols, rows, cw: CELL_W, ch: CELL_H, look: o };
 }
 
+export function registerLook(key, look) { LOOKS[key] = look; }
+
 // 对话头像：取正面头部放大
 export function portraitURL(look) {
   const sheet = buildHumanSheet(look);

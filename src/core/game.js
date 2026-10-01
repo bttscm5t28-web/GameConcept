@@ -104,6 +104,7 @@ export class Game {
     try { await fn(this.ctx, arg); }
     catch (e) { if (!(e instanceof Abort)) console.error(e); else return; }
     if (this.mode === 'script') this.mode = prev;
+    if (this.world.follower?.scripted) { this.world.follower.scripted = false; this.world.resetTrail(); }
     this.world.release();
   }
   interact(t) {
@@ -207,7 +208,7 @@ export class Game {
         const f = new (g.world.player.constructor)(HEROES[id].look, { id });
         const x = npc ? npc.x : g.world.player.x, z = npc ? npc.z : g.world.player.z;
         if (npc) g.world.removeNPC(id);
-        f.setPos(x, z); g.world.scene.add(f.group); g.world.follower = f; g.world.trail = [];
+        f.setPos(x, z); g.world.scene.add(f.group); g.world.follower = f; g.world.resetTrail();
         g.ui.toast(`<b>${HEROES[id].name}</b> 加入了队伍`); g.audio.sfxPlay('levelup');
       },
       healAll() { healAll(g.state); },
@@ -320,6 +321,8 @@ export class Game {
     this.toTitle();
     throw new Abort();
   }
+
+  registerSpeaker(key, name, look) { SPEAKERS[key] = [name, look]; }
 
   // ---------- 调试 ----------
   debugStart({ map = 'town', spawn = 'default', flags = {}, party = null, lv = null, items = null } = {}) {

@@ -41,12 +41,12 @@ export class Battle {
     });
     // 敌方
     const n = opts.enemies.length;
-    const slots = n === 1 ? [[-3.4, -0.2]] : n === 2 ? [[-2.7, -0.9], [-4.3, 1.0]] : [[-2.5, -1.3], [-4.7, -0.1], [-2.9, 1.5]];
+    const slots = n === 1 ? [[-2.9, -0.2]] : n === 2 ? [[-2.3, -1.0], [-3.6, 1.0]] : [[-2.0, -1.5], [-3.9, -0.3], [-2.3, 1.4]];
     const counts = {};
     this.enemies = opts.enemies.map((key, i) => {
       const d = ENEMIES[key];
       counts[key] = (counts[key] || 0) + 1;
-      const pos = d.boss ? [-3.8, -0.8] : slots[i];
+      const pos = d.boss ? [-3.3, -1.0] : (d.miniboss ? [-2.9, -0.5] : slots[i]);
       return this.makeEnemy(key, pos, opts.enemies.filter((k) => k === key).length > 1 ? String.fromCharCode(64 + counts[key]) : '');
     });
     this.buildUI();

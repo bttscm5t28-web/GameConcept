@@ -24,7 +24,12 @@ export class ListNav {
     if (!this.items.length) return;
     this.idx = i;
     this.items.forEach((it, k) => it.el.classList.toggle('sel', k === i));
-    this.items[i]?.el.scrollIntoView?.({ block: 'nearest' });
+    const c = this.container, e = this.items[i]?.el;
+    if (e && c && c.scrollHeight > c.clientHeight + 2) {
+      const top = e.offsetTop - c.offsetTop;
+      if (top < c.scrollTop) c.scrollTop = top - 4;
+      else if (top + e.offsetHeight > c.scrollTop + c.clientHeight) c.scrollTop = top + e.offsetHeight - c.clientHeight + 4;
+    }
     this.onMove?.(this.items[i], i);
   }
   // 返回 {pick:i} | {cancel:true} | null

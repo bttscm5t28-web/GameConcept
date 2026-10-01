@@ -427,6 +427,13 @@ export class World {
     g.ui.updateBubbles(this);
   }
 
+  resetTrail() {
+    const f = this.follower, p = this.player;
+    if (!f) return;
+    this.trail = [];
+    for (let i = 0; i <= 12; i++) { const k = i / 12; this.trail.push({ x: f.x + (p.x - f.x) * k, z: f.z + (p.z - f.z) * k, dir: p.dir }); }
+  }
+
   onStep(d) {
     const enc = this.def.encounters;
     if (!enc || this.game.state.flags.noEncounter || (enc.cond && !enc.cond(this.game))) { this.game.ui.setDanger(null); return; }
