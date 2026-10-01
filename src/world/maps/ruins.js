@@ -516,7 +516,7 @@ export default function ruins(game) {
 
   // ---------- 地图定义 ----------
   return {
-    id: 'ruins', name: '墨家旧坊', sub: '北山 · 机关城遗址 · 黄昏', music: 'ruins', battleBg: 'ruins',
+    id: 'ruins', spriteLift: 0.28, name: '墨家旧坊', sub: '北山 · 机关城遗址 · 黄昏', music: 'ruins', battleBg: 'ruins',
     grid: grid(F0),
     treeKind: 'pine',
     bake: true,

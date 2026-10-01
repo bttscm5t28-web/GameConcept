@@ -105,6 +105,8 @@ export class World {
     if (def.bake) this.bakeStatic();
     for (const t of def.triggers?.(g) || []) this.triggers.push(t);
     for (const e of def.exits || []) this.exits.push(e);
+    this.spriteLift = def.spriteLift ?? 0.06;
+    for (const a of [this.player, this.follower, ...this.npcs]) if (a) a.glowBase = this.spriteLift;
     this.player.setPos(spawn.x, spawn.z, this.heightAt(spawn.x, spawn.z));
     this.player.face(spawn.dir || 'down');
     if (this.follower) { this.follower.setPos(spawn.x, spawn.z + 0.01); this.follower.face(spawn.dir || 'down'); }
@@ -353,6 +355,7 @@ export class World {
     a.face(def.dir || 'down');
     a.home = { x: def.x, z: def.z };
     a.wanderT = Math.random() * 3;
+    a.glowBase = this.spriteLift ?? 0.06;
     this.scene.add(a.group);
     this.npcs.push(a);
     return a;

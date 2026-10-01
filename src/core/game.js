@@ -231,7 +231,7 @@ export class Game {
         const f = new (g.world.player.constructor)(HEROES[id].look, { id });
         const x = npc ? npc.x : g.world.player.x, z = npc ? npc.z : g.world.player.z;
         if (npc) g.world.removeNPC(id);
-        f.setPos(x, z); g.world.scene.add(f.group); g.world.follower = f; g.world.resetTrail();
+        f.setPos(x, z); f.glowBase = g.world.spriteLift ?? 0.06; g.world.scene.add(f.group); g.world.follower = f; g.world.resetTrail();
         g.ui.toast(`<b>${HEROES[id].name}</b> 加入了队伍`); g.audio.sfxPlay('levelup');
       },
       healAll() { healAll(g.state); },
