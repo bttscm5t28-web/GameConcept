@@ -9,7 +9,7 @@ const THEMES = {
   town: { fog: '#e9dcc0', hemi: ['#d8e6ee', '#6a5a3a', 1.2], sun: ['#ffe2b0', 2.2], tile: 'stone', mountain: '#6e8a84' },
   forest: { fog: '#c9d8a8', hemi: ['#d0ecb0', '#3a4a2a', 1.1], sun: ['#fff0c0', 2.4], tile: 'grass', mountain: '#4e7a5a' },
   ruins: { fog: '#6a6478', hemi: ['#8a90b8', '#2a2018', 0.9], sun: ['#ffb07a', 1.5], tile: 'stoneMoss', mountain: '#4a4a5e' },
-  boss: { fog: '#1e1626', hemi: ['#5a4a7a', '#1a1010', 0.7], sun: ['#c07aff', 0.9], tile: 'dark', mountain: '#2a2236' },
+  boss: { fog: '#221a2a', hemi: ['#a898b8', '#2a1c14', 1.05], sun: ['#ffc890', 1.5], tile: 'dark', mountain: '#2a2236' },
 };
 
 export function buildStage(theme) {
@@ -79,7 +79,8 @@ export function buildStage(theme) {
       const d = add(P.ding({ s: 2.8, glow: true }), 0, -8.5);
       updaters.push((t) => { d.userData.glow.material.color.setHSL(0.45, 1, 0.5 + Math.sin(t * 2) * 0.15); });
       scene.add(particles({ count: 120, area: [-12, -8, 12, 4], y: [0, 6], color: '#c070ff', size: 0.1, speed: 0.4 }));
-      const pl = new THREE.PointLight('#7a3aff', 20, 16, 1.4); pl.position.set(-3, 3, 1); scene.add(pl);
+      const pl = new THREE.PointLight('#9a5aff', 7, 14, 1.6); pl.position.set(-4, 1.2, 2.5); scene.add(pl);
+      const rim = new THREE.PointLight('#ffb070', 10, 12, 1.6); rim.position.set(3.5, 3, 3); scene.add(rim);
     } else {
       add(P.gear({ r: 1.4 }), 3, -8).rotation.set(0, 0.3, 0);
       scene.add(particles({ count: 50, area: [-12, -6, 12, 4], y: [0, 5], color: '#ffb070', size: 0.06, speed: 0.6 }));

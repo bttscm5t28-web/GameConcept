@@ -108,7 +108,7 @@ export const ENEMIES = {
     acts: [{ name: '机关刃', kind: 'phys', power: 1.15, w: 3 }, { name: '旋转斩', kind: 'phys', power: 0.75, all: true, w: 2 }, { name: '铜壁', kind: 'buffself', w: 1 }] },
   ghostfire: { name: '鼎魂火', sprite: 'ghostfire', hp: 90, atk: 10, def: 8, mag: 22, res: 12, spd: 16, shield: 2, weak: ['water', 'metal'], exp: 0, money: 0, scale: 0.95, float: true,
     acts: [{ name: '魂火', kind: 'mag', power: 1.0, w: 1 }] },
-  taotie: { name: '饕餮之影', sprite: 'taotie', hp: 1500, atk: 34, def: 16, mag: 26, res: 14, spd: 10, shield: 6, weak: ['metal', 'fire', 'bow', 'charm'], exp: 220, money: 300, scale: 1.0, boss: true, float: true,
+  taotie: { name: '饕餮之影', sprite: 'taotie', hp: 1500, atk: 34, def: 16, mag: 26, res: 14, spd: 10, shield: 6, weak: ['metal', 'fire', 'bow', 'charm'], exp: 220, money: 300, scale: 0.86, boss: true, float: true,
     phase2: { shield: 8, weak: ['wood', 'water', 'sword', 'charm'] },
     acts: [{ name: '噬咬', kind: 'phys', power: 1.25, w: 3 }, { name: '青铜咆哮', kind: 'mag', power: 0.7, all: true, debuff: 'def', w: 2 }] },
 };

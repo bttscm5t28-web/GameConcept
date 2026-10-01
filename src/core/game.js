@@ -36,6 +36,9 @@ export class Game {
     const qs = new URLSearchParams(location.search);
     this.debug = qs.has('debug');
     this.dtCap = +(qs.get('dtcap') || 0.05);
+    // ?fast：剧情逻辑快速测试（对话跳过、选项选第一个、战斗自动胜利、演出瞬间完成）
+    this.fast = qs.has('fast');
+    this.fastPick = +(qs.get('pick') || 0);
     this.ctx = this.makeCtx();
     window.game = this;
     const kick = () => this.audio.init();
@@ -103,11 +106,10 @@ export class Game {
     this.mode = 'transition';
     this.audio.sfxPlay('whoosh');
     this.ui.hideBubbles();
-    await this.ui.ink(true, 0.7);
+    if (!this.fast) await this.ui.ink(true, 0.7);
     const def = this.enterMap(id, spawn);
     this.autosave();
-    await new Promise((r) => setTimeout(r, 200));
-    await this.ui.ink(false, 0.8);
+    if (!this.fast) { await new Promise((r) => setTimeout(r, 200)); await this.ui.ink(false, 0.8); }
     this.mode = prev === 'script' ? 'script' : 'explore';
     if (def.onEnter) this.runScript(def.onEnter);
   }
@@ -178,35 +180,39 @@ export class Game {
   makeCtx() {
     const g = this;
     const actor = (id) => id === 'player' || id === 'moheng' ? g.world.player : id === 'follower' || (id === 'wuyue' && g.world.follower && !g.world.npc('wuyue')) ? g.world.follower : g.world.npc(id);
+    const F = g.fast;
+    const log = (...a) => { if (F) console.log('[剧情]', ...a); };
     const ctx = {
       game: g,
       get state() { return g.state; },
       get world() { return g.world; },
       flags: new Proxy({}, { get: (_, k) => g.state.flags[k], set: (_, k, v) => { g.state.flags[k] = v; return true; } }),
       say(who, text, opts = {}) {
+        if (F) { log((SPEAKERS[who]?.[0] || who) + '：' + text); return Promise.resolve(); }
         const sp = SPEAKERS[who];
         if (sp) return g.ui.say(sp[0], text, { look: sp[1], ...opts });
         return g.ui.say(who, text, opts);
       },
-      narr(text) { return g.ui.say(null, text, { narr: true }); },
-      ask(who, text, options) { const sp = SPEAKERS[who]; return g.ui.ask(sp ? sp[0] : who, text, options, { look: sp?.[1] }); },
-      choose(options) { return g.ui.choose(options); },
-      wait(ms) { return new Promise((r) => setTimeout(r, ms)); },
+      narr(text) { if (F) { log('旁白：' + text); return Promise.resolve(); } return g.ui.say(null, text, { narr: true }); },
+      ask(who, text, options) { if (F) { log('选项', text, options, '→', options[Math.min(g.fastPick, options.length - 1)]); return Promise.resolve(Math.min(g.fastPick, options.length - 1)); } const sp = SPEAKERS[who]; return g.ui.ask(sp ? sp[0] : who, text, options, { look: sp?.[1] }); },
+      choose(options) { if (F) { log('选项', options, '→', options[Math.min(g.fastPick, options.length - 1)]); return Promise.resolve(Math.min(g.fastPick, options.length - 1)); } return g.ui.choose(options); },
+      wait(ms) { return new Promise((r) => setTimeout(r, F ? 0 : ms)); },
       actor,
-      walk(id, x, z, speed) { const a = actor(id); if (!a) return Promise.resolve(); if (a === g.world.follower) a.scripted = true; return a.walkTo(x, z, speed); },
+      walk(id, x, z, speed) { const a = actor(id); if (!a) return Promise.resolve(); if (a === g.world.follower) a.scripted = true; if (F) { a.setPos(x, z, g.world.heightAt(x, z)); return Promise.resolve(); } return a.walkTo(x, z, speed); },
       async walkPath(id, pts, speed) { for (const [x, z] of pts) await ctx.walk(id, x, z, speed); },
       face(id, dir) { const a = actor(id); if (!a) return; if (typeof dir === 'string' && ['up', 'down', 'left', 'right'].includes(dir)) a.face(dir); else { const b = actor(dir); if (b) a.faceToward(b.x, b.z); } },
       async emote(id, e, ms = 1200) { const a = actor(id); if (!a) return; a.emote = e; g.audio.sfxPlay('cursor'); await ctx.wait(ms); a.emote = null; },
+      log,
       emoteOn(id, e) { const a = actor(id); if (a) a.emote = e; },
       spawn(def) { return g.world.addNPC(def); },
       remove(id) { g.world.removeNPC(id); },
-      pan(x, z, dur = 1.2) { return g.world.panTo(x, z, dur); },
+      pan(x, z, dur = 1.2) { return g.world.panTo(x, z, F ? 0 : dur); },
       release() { g.world.release(); },
       shake(t = 0.5) { g.world.shake = t; },
       flash(c = '#fff', ms = 400, peak = 0.85) { g.ui.flash(c, ms, peak); },
-      fadeOut(ms = 700) { return g.ui.fadeBlack(true, ms); },
-      fadeIn(ms = 700) { return g.ui.fadeBlack(false, ms); },
-      async battle(enemies, opts) { return g.battle(enemies, opts); },
+      fadeOut(ms = 700) { return g.ui.fadeBlack(true, F ? 1 : ms); },
+      fadeIn(ms = 700) { return g.ui.fadeBlack(false, F ? 1 : ms); },
+      async battle(enemies, opts) { if (F) { log('【战斗】', enemies.join(','), opts?.intro || ''); if (opts?.onPhase2) await opts.onPhase2({ game: g }); return 'win'; } return g.battle(enemies, opts); },
       give(id, n = 1, silent = false) {
         if (EQUIP[id]) { addEquip(g.state, id, n); if (!silent) { g.ui.toast(`获得装备 <b>${EQUIP[id].name}</b>${n > 1 ? ' ×' + n : ''}`); g.audio.sfxPlay('item'); } return; }
         addItem(g.state, id, n);
@@ -231,13 +237,13 @@ export class Game {
       healAll() { healAll(g.state); },
       save() { g.autosave(); g.ui.toast('进度已保存'); },
       async toast(t) { g.ui.toast(t); },
-      async story(lines, opts) { g.ui.hideBubbles(); return g.ui.storyCols(lines, opts); },
+      async story(lines, opts) { if (F) { log('【竖排】' + lines.join(' / ')); return; } g.ui.hideBubbles(); return g.ui.storyCols(lines, opts); },
       changeMap(id, sp) { return g.changeMap(id, sp); },
-      async inkOut() { await g.ui.ink(true, 0.7); },
-      async inkIn() { await g.ui.ink(false, 0.8); },
+      async inkOut() { if (!F) await g.ui.ink(true, 0.7); },
+      async inkIn() { if (!F) await g.ui.ink(false, 0.8); else g.ui.black(false); },
       stats(id) { return stats(g.state, id); },
-      async shop(list) { return g.menu.shop(list); },
-      chapterEnd() { return g.chapterEnd(); },
+      async shop(list) { if (F) { log('【商店】', list.join(',')); return; } return g.menu.shop(list); },
+      chapterEnd() { if (F) { log('【章节结束】'); g.state.flags.chapter1Done = true; return Promise.resolve(); } return g.chapterEnd(); },
     };
     return ctx;
   }

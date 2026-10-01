@@ -25,6 +25,7 @@ export class Battle {
     this.scene = st.scene; this.camera = st.camera; this.stageUpdaters = st.updaters;
     this.camBase = this.camera.position.clone();
     this.vfx = new VFX(this.scene);
+    this.smoke = new VFX(this.scene, { additive: false });
     this.tweens = [];
     this.round = 0; this.result = null; this.tipsShown = new Set(); this.boostedThisRound = new Set(); this.defeated = []; this.sealedSouls = [];
     this.dimLevel = 0; this.dimTarget = 0;
@@ -46,7 +47,7 @@ export class Battle {
     this.enemies = opts.enemies.map((key, i) => {
       const d = ENEMIES[key];
       counts[key] = (counts[key] || 0) + 1;
-      const pos = d.boss ? [-3.3, -1.0] : (d.miniboss ? [-2.9, -0.5] : slots[i]);
+      const pos = d.boss ? [-3.2, -1.6] : (d.miniboss ? [-2.9, -0.5] : slots[i]);
       return this.makeEnemy(key, pos, opts.enemies.filter((k) => k === key).length > 1 ? String.fromCharCode(64 + counts[key]) : '');
     });
     this.buildUI();
@@ -215,9 +216,14 @@ export class Battle {
       e.mesh.rotation.z = e.twist || 0;
       if (e.flashT > 0) { e.flashT -= dt; e.mat.emissiveMap = e.sp.texture; e.mat.emissiveIntensity = Math.max(0, e.flashT * 6); }
       else { e.mat.emissiveMap = e.sp.glow; e.mat.emissiveIntensity = e.broken ? 0.4 : (e.sp.glowAll ? 0.9 : 1.3); }
+      if ((e.boss || e.miniboss) && !e.broken && Math.random() < dt * (e.boss ? 14 : 6)) {
+        const c = this.center(e);
+        this.smoke.emit({ x: c.x + (Math.random() - 0.5) * e.w * 0.8, y: e.group.position.y + 0.2, z: c.z - 0.2 }, 1, { color: e.boss ? '#7a3aa0' : '#a05a3a', color2: e.boss ? '#2a0a3a' : '#3a1a10', speed: 0.2, up: 1.2, life: 1.6, size: e.boss ? 0.7 : 0.4, drag: 0.4 });
+      }
       if (e.broken) { e.mesh.rotation.z = Math.sin(e.bob * 8) * 0.03; e.mat.color.setRGB(0.75, 0.75, 0.85); } else e.mat.color.setRGB(1, 1, 1);
     }
     this.vfx.update(dt);
+    this.smoke.update(dt);
     // 蓄气光环
     if (this.active && this.boost > 0 && Math.random() < 0.5 + this.boost * 0.2) this.vfx.preset('boost', this.center(this.active));
     // 镜头

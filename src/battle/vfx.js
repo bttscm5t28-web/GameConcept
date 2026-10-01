@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { radialTex } from '../art/textures.js';
 
 export class VFX {
-  constructor(scene) {
+  constructor(scene, { additive = true } = {}) {
     this.scene = scene;
     this.max = 1600;
     const geo = new THREE.BufferGeometry();
@@ -17,12 +17,12 @@ export class VFX {
     geo.setAttribute('alpha', new THREE.BufferAttribute(this.alpha, 1));
     this.geo = geo;
     const mat = new THREE.ShaderMaterial({
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-      uniforms: { map: { value: radialTex('rgba(255,255,255,1)', 'rgba(255,255,255,0)', 64, 'vfx') } },
+      transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
+      uniforms: { gain: { value: additive ? 1.6 : 1.0 }, map: { value: radialTex('rgba(255,255,255,1)', 'rgba(255,255,255,0)', 64, 'vfx') } },
       vertexShader: `attribute float size; attribute float alpha; attribute vec3 color; varying vec3 vC; varying float vA;
         void main(){ vC = color; vA = alpha; vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = size * 300.0 / -mv.z; gl_Position = projectionMatrix * mv; }`,
-      fragmentShader: `uniform sampler2D map; varying vec3 vC; varying float vA;
-        void main(){ vec4 t = texture2D(map, gl_PointCoord); gl_FragColor = vec4(vC * 1.6, t.a * vA); }`,
+      fragmentShader: `uniform sampler2D map; uniform float gain; varying vec3 vC; varying float vA;
+        void main(){ vec4 t = texture2D(map, gl_PointCoord); gl_FragColor = vec4(vC * gain, t.a * vA * (gain > 1.5 ? 1.0 : 0.55)); }`,
     });
     this.points = new THREE.Points(geo, mat);
     this.points.frustumCulled = false;

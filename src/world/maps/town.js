@@ -2,6 +2,11 @@
 import * as P from '../../art/props.js';
 import { makeGrid, fillRect, line, scatter, toRows, chestObj } from './helpers.js';
 import { mistLayer, particles } from '../effects.js';
+import { registerLook } from '../../art/characters.js';
+
+registerLook('shusheng', { hair: '#2a2220', hairStyle: 'knot', band: '#e8e0cc', skin: '#f1cba6', robe: '#d8d0bc', trim: '#4a5a6a', sash: '#4a5a6a', pants: '#5a5a5a', shoes: '#2b2019', long: true });
+registerLook('suanming', { hair: '#8a847a', hairStyle: 'short', skin: '#dcae86', robe: '#3a3a5a', trim: '#c9a24a', sash: '#8a2a2a', pants: '#2a2a3a', shoes: '#1f1a16', hat: 'cap', beard: '#bdb6aa', long: true });
+registerLook('chuanfu', { hair: '#2a2220', hairStyle: 'short', band: '#8a3a2a', skin: '#c88a5e', robe: '#5a6a5a', trim: '#a89a7a', sash: '#3a2e22', pants: '#4a4a3a', shoes: '#2b2019', hat: 'douli' });
 
 const W = 40, H = 30;
 
@@ -25,6 +30,9 @@ function grid() {
 
 export default function town(game) {
   const F = game.state.flags;
+  game.registerSpeaker('shusheng', '书生', 'shusheng');
+  game.registerSpeaker('suanming', '算命先生', 'suanming');
+  game.registerSpeaker('chuanfu', '船夫', 'chuanfu');
   return {
     id: 'town', name: '洛水渡', sub: '洛水之畔 · 晨', music: 'town', battleBg: 'town',
     grid: grid(),
@@ -214,6 +222,45 @@ export default function town(game) {
             await ctx.say('villagerB', '后来周室衰微，九鼎沉于泗水……也有人说，那只是其中一尊。其余八尊，散落四方，至今下落不明。');
             ctx.flags.lore1 = true;
           } else await ctx.say('villagerB', '老头子我活了七十岁，头一回见洛水发光。怕是天下要不太平喽。');
+        } });
+      // 书生（墨家往事）
+      list.push({ id: 'shusheng', look: 'shusheng', x: 11.2, z: 19.4, dir: 'down',
+        talk: async (ctx) => {
+          if (!ctx.flags.lore2) {
+            await ctx.say('shusheng', '「兼相爱，交相利」……啊，是墨衡兄。在下正读《墨子》，读到《非攻》一篇，心有戚戚焉。');
+            await ctx.say('shusheng', '你们墨家先贤，止楚攻宋，九设攻城之机而九拒之，以一人之智退一国之兵。何等气魄！');
+            await ctx.say('moheng', '那都是几百年前的事了。如今墨家分作三支，各守各的旧坊，连一年一次的聚会都凑不齐人了。');
+            await ctx.say('shusheng', '可惜，可惜。不过在下听说，墨家机关术里藏着一门「格物之学」，专研金石草木——连上古的青铜器，墨家都能看出门道来。');
+            ctx.flags.lore2 = true;
+          } else {
+            await ctx.say('shusheng', '「天下兼相爱则治，交相恶则乱。」墨衡兄此去，一路平安。');
+          }
+        } });
+      // 算命先生
+      list.push({ id: 'suanming', look: 'suanming', x: 25.6, z: 15.2, dir: 'left',
+        talk: async (ctx) => {
+          if (!ctx.flags.fortune) {
+            await ctx.say('suanming', '这位小哥，留步！老夫观你印堂之上隐有青光，乃是……乃是大吉大凶之兆啊！');
+            const c = await ctx.ask('moheng', '（大吉大凶？）', ['请先生细说（10 文）', '不必了']);
+            if (c === 0 && ctx.state.money >= 10) {
+              ctx.money(-10);
+              await ctx.say('suanming', '嗯……乾卦九五，飞龙在天。你此行向北，必遇一位贵人，是女子，带着叮当作响的东西。');
+              await ctx.say('suanming', '只是——鼎卦之象，「鼎折足，覆公餗」。小哥日后若遇大器，千万莫要贪心，器重则足折啊。');
+              await ctx.say('moheng', '……先生怎知我要往北去？');
+              await ctx.say('suanming', '嘿嘿，天机，天机。（其实老夫看见你从北门问路来着。）');
+              ctx.flags.fortune = true;
+            } else if (c === 0) {
+              await ctx.say('suanming', '没钱？那……那老夫就送你一句：出门在外，钱要带够。');
+            } else await ctx.say('suanming', '不信便罢，不信便罢。天机自有定数。');
+          } else {
+            await ctx.say('suanming', '老夫这卦，向来不准则已，一准惊人。小哥且看着吧。');
+          }
+        } });
+      // 船夫
+      list.push({ id: 'chuanfu', look: 'chuanfu', x: 21.3, z: 25.6, dir: 'down',
+        talk: async (ctx) => {
+          await ctx.say('chuanfu', '过河？今儿可不开船。昨夜那道光把河底的鱼都惊得往上蹦，水流也怪得很，船一下水就打转。');
+          if (ctx.flags.gotShard) await ctx.say('chuanfu', '你手里那东西……靠近它，我这船桨上的铜箍都在发烫。阿衡，你可得当心些。');
         } });
       if (f.titleScreen) return [];
       return list;
