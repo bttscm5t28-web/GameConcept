@@ -145,7 +145,7 @@ export function tree({ kind = 'pine', scale = 1, seed = 1 } = {}) {
   // 内部体积
   const coreMat = lam('treecore' + kind, { color: kind === 'peach' ? '#9a4a5e' : kind === 'pine' ? '#22382a' : kind === 'willow' ? '#4a6230' : '#33522c', flatShading: true });
   const cy = trunkH + (kind === 'pine' ? 0.9 : 0.6) * scale;
-  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.95 * scale, 0), coreMat);
+  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.75 * scale, 1), coreMat);
   core.position.y = cy; core.scale.set(1.25, kind === 'willow' ? 1.2 : 0.9, 1);
   g.add(core);
   const n = kind === 'pine' ? 14 : 16;
@@ -165,7 +165,7 @@ export function tree({ kind = 'pine', scale = 1, seed = 1 } = {}) {
     }
     const card = new THREE.Mesh(new THREE.PlaneGeometry(s, s), mats[i % 2]);
     card.position.set(x, y, z);
-    card.rotation.set((r() - 0.5) * 0.4, (r() - 0.5) * 0.9, r() * Math.PI * 2);
+    card.rotation.set((r() - 0.5) * 0.3, (r() - 0.5) * 0.5, kind === 'willow' ? (r() - 0.5) * 0.2 : (r() - 0.5) * 0.9 + (r() < 0.5 ? Math.PI : 0));
     card.customDepthMaterial = depth;
     g.add(card);
   }
@@ -234,7 +234,7 @@ export function paifang(text = '洛水渡') {
   for (const sx of [-1.4, 1.4]) { g.add(box(0.28, 3.2, 0.28, red, sx, 1.6, 0)); g.add(box(0.5, 0.4, 0.5, M.stone(), sx, 0.2, 0)); }
   g.add(box(3.4, 0.25, 0.3, red, 0, 2.7, 0));
   g.add(box(3.0, 0.18, 0.25, red, 0, 2.2, 0));
-  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.42), new THREE.MeshLambertMaterial({ map: T.glyphTex(text, { w: 64, h: 20, bg: '#1d2a3a', fg: '#e2b84e', font: 'bold 15px serif', border: '#c9a24a', pixel: false }) }));
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.42), new THREE.MeshLambertMaterial({ map: T.glyphTex(text, { w: 64, h: 20, bg: '#1d2a3a', fg: '#e2b84e', font: '16px JDKai, serif', border: '#c9a24a', pixel: false }) }));
   plaque.position.set(0, 2.46, 0.16);
   g.add(plaque);
   const roof = chineseRoof(4.2, 1.1, 0.55, '#3d4856');
@@ -281,7 +281,7 @@ export function stall({ cloth = '#c9423a', flag = '茶' } = {}) {
   for (let i = 0; i < 3; i++) { const j = jar(0.6, ['#7a4a2a', '#4a5a6a', '#8a7a5a'][i]); j.position.set(-0.5 + i * 0.5, 0.8, 0); g.add(j); }
   if (flag) {
     g.add(box(0.05, 2.8, 0.05, M.darkWood(), 1.1, 1.4, 0.3));
-    const f = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.8), new THREE.MeshLambertMaterial({ map: T.glyphTex(flag, { w: 16, h: 24, bg: '#e8dcc0', fg: '#2a1d17', font: 'bold 13px serif', border: '#b8322a', pixel: false }), side: THREE.DoubleSide }));
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.8), new THREE.MeshLambertMaterial({ map: T.glyphTex(flag, { w: 16, h: 24, bg: '#e8dcc0', fg: '#2a1d17', font: '14px JDKai, serif', border: '#b8322a', pixel: false }), side: THREE.DoubleSide }));
     f.position.set(1.37, 2.3, 0.3);
     g.add(f);
     g.userData.flag = f;

@@ -1,8 +1,11 @@
+@font-face { font-family: 'JDKai'; src: url('/fonts/kai.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'JDSerif'; src: url('/fonts/serif.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'JDSerif'; src: url('/fonts/serif-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
 :root {
   --ink: #15110d; --ink2: rgba(18, 14, 10, 0.86); --paper: #efe4cc; --paper2: #e2d3b2;
   --gold: #c9a24a; --gold2: #8a6a2a; --red: #b8322a; --jade: #4f8a7a; --text: #f3ead6; --dim: #b9ab8e;
-  --kai: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', 'Kaiti SC', serif;
-  --serif: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --kai: 'JDKai', 'Ma Shan Zheng', 'STKaiti', 'KaiTi', 'Kaiti SC', serif;
+  --serif: 'JDSerif', 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: #0d0a08; overflow: hidden; font-family: var(--serif); color: var(--text); user-select: none; -webkit-user-select: none; }

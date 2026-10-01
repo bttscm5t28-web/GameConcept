@@ -1,12 +1,12 @@
 // 自动游玩测试：node tools/play.mjs steps.json outdir
 import { chromium } from 'playwright';
 import fs from 'fs';
-const [stepsFile, outDir = '.', url = 'http://127.0.0.1:5173/?debug'] = process.argv.slice(2);
+const [stepsFile, outDir = '.', url = 'http://127.0.0.1:5173/?debug&dtcap=0.25', vw = '1280', vh = '720'] = process.argv.slice(2);
 const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8'));
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'] });
-const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, ignoreHTTPSErrors: true });
+const page = await browser.newPage({ viewport: { width: +vw, height: +vh }, ignoreHTTPSErrors: true });
 const logs = [];
-page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') logs.push(m.type() + ': ' + m.text()); });
+page.on('console', (m) => { if (m.type() !== 'debug') logs.push(m.type() + ': ' + m.text()); });
 page.on('pageerror', (e) => logs.push('PAGEERROR: ' + e.message + '\n' + e.stack));
 await page.goto(url, { waitUntil: 'domcontentloaded' });
 for (const s of steps) {

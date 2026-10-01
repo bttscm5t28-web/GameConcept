@@ -195,7 +195,7 @@ export function facadeTex(wCells, hCells, { wall = '#e8dfcc', frame = '#5a3a22',
       const sw = 22, sx = Math.floor(W / 2 - sw / 2);
       g.fillStyle = '#2b1d14'; g.fillRect(sx - 1, 2, sw + 2, 11);
       g.fillStyle = '#1d2a3a'; g.fillRect(sx, 3, sw, 9);
-      g.fillStyle = '#e2b84e'; g.font = 'bold 9px serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillStyle = '#e2b84e'; g.font = '10px JDKai, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText(sign, W / 2, 8);
     }
     return pixelTex(c);

@@ -26,7 +26,7 @@ export class Battle {
     this.camBase = this.camera.position.clone();
     this.vfx = new VFX(this.scene);
     this.tweens = [];
-    this.round = 0; this.result = null; this.tipsShown = new Set();
+    this.round = 0; this.result = null; this.tipsShown = new Set(); this.boostedThisRound = new Set(); this.defeated = []; this.sealedSouls = [];
     this.dimLevel = 0; this.dimTarget = 0;
     // 我方
     this.party = g.state.party.map((id, i) => {
@@ -52,7 +52,7 @@ export class Battle {
     this.buildUI();
     this.camera.aspect = window.innerWidth / window.innerHeight; this.camera.updateProjectionMatrix();
     g.renderer.setView(this.scene, this.camera);
-    g.renderer.setLook({ bloom: opts.bg === 'boss' ? 0.9 : 0.6, tilt: 2.2, band: 0.2, focusY: 0.45, vignette: 0.5 });
+    g.renderer.setLook({ bloom: opts.bg === 'boss' ? 0.75 : 0.5, bloomThreshold: 0.86, tilt: 1.6, band: 0.26, focusY: 0.42, vignette: 0.5 });
   }
 
   makeEnemy(key, [x, z], suffix = '') {
@@ -106,7 +106,7 @@ export class Battle {
     const box = $('.order', this.ui);
     box.innerHTML = '<span class="lbl">行动</span>';
     order.forEach((u, i) => {
-      const o = el('div', 'o ' + u.side + (i === idx ? ' now' : '') + (i < idx ? ' done' : ''));
+      const o = el('div', 'o ' + (u.side === 'party' ? 'ally' : 'enemy') + (i === idx ? ' now' : '') + (i < idx ? ' done' : ''));
       o.style.backgroundImage = `url(${u.side === 'party' ? portrait(HEROES[u.id].look) : u.sp.canvas.toDataURL()})`;
       if (u.side === 'enemy') o.style.backgroundSize = 'contain';
       o.title = u.name;

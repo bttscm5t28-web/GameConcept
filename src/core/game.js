@@ -33,7 +33,9 @@ export class Game {
     this.mode = 'boot';
     this.clock = new THREE.Clock();
     this.t = 0;
-    this.debug = new URLSearchParams(location.search).has('debug');
+    const qs = new URLSearchParams(location.search);
+    this.debug = qs.has('debug');
+    this.dtCap = +(qs.get('dtcap') || 0.05);
     this.ctx = this.makeCtx();
     window.game = this;
     const kick = () => this.audio.init();
@@ -48,7 +50,7 @@ export class Game {
   }
 
   frame() {
-    const dt = Math.min(0.05, this.clock.getDelta());
+    const dt = Math.min(this.dtCap, this.clock.getDelta());
     this.t += dt;
     if (this.mode !== 'title' && this.mode !== 'boot') this.state.stats.playTime += dt;
     const modal = this.ui.update(this.input, dt);
@@ -296,8 +298,8 @@ export class Game {
       '!——洛水，开始发光。',
     ], { hold: 2.4 });
     this.enterMap('town', 'opening', { banner: false });
-    this.mode = 'script';
     this.ui.black(true);
+    this.mode = 'explore';
     const def = this.world.def;
     if (def.prologue) this.runScript(def.prologue);
   }

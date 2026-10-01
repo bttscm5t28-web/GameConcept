@@ -348,7 +348,10 @@ export const SKILL_FX = {
     await fx.cutin('炎阵·朱雀', '南明离火，朱雀临凡');
     fx.dim(true);
     fx.sfx('fire');
-    const bird = A.spritePlane(A.zhuqueTex(), 6, 3.6, { additive: true });
+    const bird = A.spritePlane(A.zhuqueTex(), 5.4, 3.24);
+    bird.material.color.setRGB(1.6, 1.3, 1.1);
+    const halo = A.spritePlane(A.zhuqueTex(), 6.4, 3.9, { additive: true, opacity: 0.35 });
+    halo.position.z = -0.05; bird.add(halo);
     bird.scale.x = -1;
     const xs = targets.map((t) => t.home.x);
     const y = 2.4;
