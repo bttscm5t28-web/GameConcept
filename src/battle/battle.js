@@ -688,7 +688,7 @@ export class Battle {
     e.weak = [...p2.weak]; e.revealed = new Set();
     await sleep(1200);
     // 召唤鼎魂火
-    const spots = [[-1.6, 1.8], [-1.8, -2.2]];
+    const spots = [[0.5, -1.3], [-1.0, 1.4]];
     for (const s of spots) {
       if (this.enemies.filter((x) => !x.ko).length >= 3) break;
       const m = this.makeEnemy('ghostfire', s);
