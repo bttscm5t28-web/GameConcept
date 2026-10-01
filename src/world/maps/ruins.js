@@ -290,7 +290,6 @@ export default function ruins(game) {
     await ctx.walkPath('player', [[21.9, 8.4], [22.1, 7.4]], 5);
     ctx.face('player', 'right');
     await ctx.wait(400);
-    sh.pose = 'hurt';
     await ctx.say('shishu', '……咳……衡儿？');
     await ctx.say('shishu', '你这孩子……来得倒是时候。也来得，真不是时候。');
     await ctx.say('moheng', '你伤得好重……别说话，我这儿有药——');
@@ -314,6 +313,7 @@ export default function ruins(game) {
     await ctx.say('moheng', '等什么？');
     await ctx.say('shishu', '等一把能打开鼎腹的「钥匙」，自己送上门来——');
     await ctx.emote('shishu', '！', 700);
+    sh.pose = 'hurt';
     await ctx.say('shishu', '……衡儿，快走！他等的，就是你身上的残片！');
 
     // —— 黑袍人现身
