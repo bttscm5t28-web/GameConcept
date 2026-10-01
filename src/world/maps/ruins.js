@@ -3,7 +3,8 @@
 import * as THREE from 'three';
 import * as P from '../../art/props.js';
 import { makeGrid, fillRect, line, toRows, chestObj } from './helpers.js';
-import { mistLayer, particles, godRays } from '../effects.js';
+import { mistLayer, particles, godRays, applyOcclusionFade } from '../effects.js';
+import * as T from '../../art/textures.js';
 import { ENCOUNTERS } from '../../data/db.js';
 import * as A from './ruinsArt.js';
 
@@ -396,12 +397,12 @@ export default function ruins(game) {
       boss: true, noFlee: true, bg: 'boss', music: 'boss', afterMusic: 'ending',
       intro: '饕餮之影 自鼎中苏醒！',
       onStart: async () => {
-        await g.ui.say('墨拙', '衡儿，听着！饕餮贪食，张口吞天之前必露破绽——抢在它出手前，打穿它的护甲！', { look: 'shishu' });
+        await ctx.say('shishu', '衡儿，听着！饕餮贪食，张口吞天之前必露破绽——抢在它出手前，打穿它的护甲！');
       },
       onPhase2: async () => {
-        await g.ui.say('巫月', '它在吸鼎里的魂火……鼎纹变了！刚才那套打法不管用了！', { look: 'wuyue' });
-        await g.ui.say('墨衡', '「五行毋常胜，说在宜」——它现在怕水、怕木！巫月，用寒澜符！', { look: 'moheng' });
-        await g.ui.say('巫月', '用不着你教！……那几团鬼火交给我，你盯紧大的！', { look: 'wuyue' });
+        await ctx.say('wuyue', '它在吸鼎里的魂火……鼎纹变了！刚才那套打法不管用了！');
+        await ctx.say('moheng', '「五行毋常胜，说在宜」——它现在怕水、怕木！巫月，用寒澜符！');
+        await ctx.say('wuyue', '用不着你教！……那几团鬼火交给我，你盯紧大的！');
       },
     });
     ctx.flags.ruinsBossDone = true;
@@ -557,6 +558,32 @@ export default function ruins(game) {
       };
       applySky(dk);
       w.onUpdate((t, dt) => { const tg = dayStage(g.state.flags); if (Math.abs(tg - dk) > 0.001) { dk += (tg - dk) * Math.min(1, dt * 0.4); applySky(dk); } });
+
+      // ===== 墙脚补齐 =====
+      // 引擎里高地形（W/^/#）的方块底部悬空在 h-1.2，紧邻平地时会露出缝隙看到下面的水面，这里补上实心墙脚
+      {
+        const kinds = { W: [2.4, T.stoneTex(2)], '^': [3.4, T.rockSideTex(0)], '#': [1.6, T.rockSideTex(1)] };
+        const lists = { W: [], '^': [], '#': [] };
+        for (let z = -8; z < H + 10; z++) for (let x = -12; x < W + 12; x++) {
+          let ch = w.cellRaw(x, z);
+          const out = x < 0 || z < 0 || x >= W || z >= H;
+          if (out && z < 0 && !'^#BW'.includes(ch)) ch = '#';
+          if (lists[ch]) lists[ch].push([x, z]);
+        }
+        const geo = new THREE.BoxGeometry(1, 1, 1);
+        const m4 = new THREE.Matrix4();
+        for (const k in lists) {
+          if (!lists[k].length) continue;
+          const [h, tx] = kinds[k];
+          const top = h - 1.2, hh = top + 1.2;
+          const tex = tx.clone(); tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, hh); tex.needsUpdate = true;
+          const mat = applyOcclusionFade(new THREE.MeshLambertMaterial({ map: tex }));
+          const im = new THREE.InstancedMesh(geo, mat, lists[k].length);
+          lists[k].forEach(([x, z], i) => { m4.makeScale(1, hh, 1); m4.setPosition(x + 0.5, -1.2 + hh / 2 - 0.001, z + 0.5); im.setMatrixAt(i, m4); });
+          im.receiveShadow = true;
+          scene.add(im);
+        }
+      }
 
       // ===== 南坡 · 山门 =====
       add(P.paifang('墨家旧坊'), 20, 38.5, { fade: true });
