@@ -5,6 +5,7 @@ import { hash2, makeCanvas, mix, softTex } from '../art/pixel.js';
 import { lam } from '../art/props.js';
 import * as P from '../art/props.js';
 import { Actor } from './actor.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { shared, applyOcclusionFade, applySway, waterMaterial, particles } from './effects.js';
 
 const TYPES = {
@@ -97,9 +98,11 @@ export class World {
       this.follower = new Actor('wuyue', { id: 'wuyue' });
       scene.add(this.follower.group);
     }
+    this.added = [];
     def.build?.(this, g);
     for (const n of def.npcs?.(g) || []) this.addNPC(n);
     for (const o of def.objects?.(g) || []) this.objects.push(o);
+    if (def.bake) this.bakeStatic();
     for (const t of def.triggers?.(g) || []) this.triggers.push(t);
     for (const e of def.exits || []) this.exits.push(e);
     this.player.setPos(spawn.x, spawn.z, this.heightAt(spawn.x, spawn.z));
@@ -275,10 +278,11 @@ export class World {
   }
 
   // ---------- 放置 ----------
-  add(obj, x, z, { solid = null, y = 0, rot = 0, fade = false } = {}) {
+  add(obj, x, z, { solid = null, y = 0, rot = 0, fade = false, dynamic = false } = {}) {
     obj.position.set(x, y, z);
     obj.rotation.y = rot;
     this.scene.add(obj);
+    (this.added ||= []).push({ obj, dynamic });
     if (solid) {
       const [w, d] = solid;
       this.solids.push({ x0: x - w / 2, z0: z - d / 2, x1: x + w / 2, z1: z + d / 2 });
@@ -292,6 +296,39 @@ export class World {
     });
     return obj;
   }
+  // 静态合批：把不会动的道具按材质合并，大幅减少绘制调用
+  bakeStatic() {
+    const buckets = new Map();
+    for (const { obj, dynamic } of this.added) {
+      let skip = dynamic;
+      obj.traverse((o) => { if (o.userData.update || o.userData.flicker || o.userData.lid || o.isLight) skip = true; });
+      if (skip) continue;
+      obj.updateMatrixWorld(true);
+      const meshes = [];
+      obj.traverse((o) => { if (o.isMesh && !o.isInstancedMesh && !Array.isArray(o.material) && !o.material.transparent) meshes.push(o); });
+      for (const m of meshes) {
+        const key = m.material.uuid + '|' + (m.customDepthMaterial?.uuid || '') + '|' + m.castShadow;
+        if (!buckets.has(key)) buckets.set(key, { mat: m.material, depth: m.customDepthMaterial, cast: m.castShadow, geos: [] });
+        let geo = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
+        for (const name of Object.keys(geo.attributes)) if (!['position', 'normal', 'uv'].includes(name)) geo.deleteAttribute(name);
+        if (!geo.attributes.uv) { geo.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(geo.attributes.position.count * 2), 2)); }
+        geo.applyMatrix4(m.matrixWorld);
+        buckets.get(key).geos.push(geo);
+        m.removeFromParent();
+      }
+    }
+    for (const b of buckets.values()) {
+      const merged = mergeGeometries(b.geos, false);
+      if (!merged) continue;
+      const mesh = new THREE.Mesh(merged, b.mat);
+      mesh.castShadow = b.cast; mesh.receiveShadow = true;
+      if (b.depth) mesh.customDepthMaterial = b.depth;
+      mesh.matrixAutoUpdate = false;
+      this.scene.add(mesh);
+      b.geos.forEach((g) => g.dispose());
+    }
+  }
+
   solidRect(x0, z0, x1, z1) { const r = { x0, z0, x1, z1 }; this.solids.push(r); return r; }
   removeSolid(r) { this.solids = this.solids.filter((s) => s !== r); }
   onUpdate(fn) { this.updaters.push(fn); }

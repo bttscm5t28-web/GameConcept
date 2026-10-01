@@ -34,7 +34,7 @@ export default function town(game) {
   game.registerSpeaker('suanming', '算命先生', 'suanming');
   game.registerSpeaker('chuanfu', '船夫', 'chuanfu');
   return {
-    id: 'town', name: '洛水渡', sub: '洛水之畔 · 晨', music: 'town', battleBg: 'town',
+    id: 'town', bake: true, name: '洛水渡', sub: '洛水之畔 · 晨', music: 'town', battleBg: 'town',
     grid: grid(),
     env: { fog: '#ece0c6', skyTop: '#d6e2e6', fogNear: 30, fogFar: 78, hemi: ['#dbe8ef', '#7a6a48', 1.25], sun: ['#ffe4b8', 2.3], sunDir: [-9, 15, 11], ambient: ['#fff2dc', 0.25], mountain: '#6e8a84', sunDisc: '#fff4d8', water: { deep: '#24525c', shallow: '#4f8a8c', foam: '#e8f4ee' } },
     look: { bloom: 0.5, tilt: 3.4, band: 0.15, focusY: 0.5, warm: [1.05, 1.0, 0.9] },
@@ -76,8 +76,8 @@ export default function town(game) {
       });
       // 码头 / 船
       add(P.pier(5, 4), 19.5, 24.5);
-      const boat = add(P.boat(), 23.6, 24.2, { rot: Math.PI / 2 });
-      const boat2 = add(P.boat(), 9, 26.5, { rot: 0.3 });
+      const boat = add(P.boat(), 23.6, 24.2, { rot: Math.PI / 2, dynamic: true });
+      const boat2 = add(P.boat(), 9, 26.5, { rot: 0.3, dynamic: true });
       w.onUpdate((t) => { boat.position.y = Math.sin(t * 1.3) * 0.05 - 0.1; boat.rotation.z = Math.sin(t * 0.9) * 0.03; boat2.position.y = Math.sin(t * 1.1 + 1) * 0.05 - 0.1; boat2.position.x = 9 + Math.sin(t * 0.05) * 2; });
       // 渔家
       add(P.dryingRack(), 11, 15.2, { solid: [2.2, 0.3] });
